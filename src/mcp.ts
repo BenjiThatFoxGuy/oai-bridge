@@ -48,7 +48,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { resolveAttachments } from "./attachments.ts";
 import { Auth, tokenExpiryMs } from "./auth.ts";
-import { type Config, DEFAULT_CHAT_MODEL } from "./config.ts";
+import { type Config } from "./config.ts";
 import { generateImage } from "./images.ts";
 import { VERSION } from "./server.ts";
 import { Upstream } from "./upstream.ts";
@@ -238,7 +238,7 @@ const TOOL_DEFINITIONS = [
 				},
 				model: {
 					type: "string",
-					description: "Upstream model id (e.g. gpt-5.5). Defaults to gpt-5.5.",
+					description: `Upstream model id (e.g. ${cfg.chatModel}). Defaults to ${cfg.chatModel}.`,
 				},
 				attachments: {
 					type: "array",
@@ -432,7 +432,7 @@ async function handleChat(
 		path: "/responses",
 		method: "POST",
 		body: {
-			model: args.model ?? DEFAULT_CHAT_MODEL,
+			model: args.model ?? cfg.chatModel,
 			input,
 			stream: true,
 			store: false,

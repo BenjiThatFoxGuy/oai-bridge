@@ -19,7 +19,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { AttachmentError, resolveAttachment } from "./attachments.ts";
 import { Auth, tokenExpiryMs } from "./auth.ts";
-import { type Config, DEFAULT_CHAT_MODEL } from "./config.ts";
+import { type Config } from "./config.ts";
 import { ImageRequest, generateImage } from "./images.ts";
 import type { UpstreamError } from "./upstream.ts";
 import { Upstream, normalizeResponsesBody, parseSSE } from "./upstream.ts";
@@ -263,7 +263,7 @@ export function createApp(cfg: Config) {
 		// caller wanted non-stream, we aggregate the SSE and return a single Chat
 		// completion object.
 		const upstreamBody: Record<string, unknown> = {
-			model: body.model ?? DEFAULT_CHAT_MODEL,
+			model: body.model ?? cfg.chatModel,
 			input: translatedInput,
 			stream: true,
 			store: false,
@@ -297,7 +297,7 @@ export function createApp(cfg: Config) {
 					id: `chatcmpl_${crypto.randomUUID()}`,
 					object: "chat.completion",
 					created: Math.floor(Date.now() / 1000),
-					model: body.model ?? DEFAULT_CHAT_MODEL,
+					model: body.model ?? cfg.chatModel,
 					choices: [
 						{
 							index: 0,
@@ -324,7 +324,7 @@ export function createApp(cfg: Config) {
 												id,
 												object: "chat.completion.chunk",
 												created: Math.floor(Date.now() / 1000),
-												model: body.model ?? DEFAULT_CHAT_MODEL,
+												model: body.model ?? cfg.chatModel,
 												choices: [{ index: 0, delta: { content: delta }, finish_reason: null }],
 											})}\n\n`,
 										),
@@ -338,7 +338,7 @@ export function createApp(cfg: Config) {
 											id,
 											object: "chat.completion.chunk",
 											created: Math.floor(Date.now() / 1000),
-											model: body.model ?? DEFAULT_CHAT_MODEL,
+											model: body.model ?? cfg.chatModel,
 											choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
 										})}\n\n`,
 									),

@@ -309,7 +309,7 @@ async function runChatOnce(
 	input.push({ role: "user", content: userContent });
 
 	const body: Record<string, unknown> = {
-		model: job.model ?? DEFAULT_CHAT_MODEL,
+		model: job.model ?? cfg.chatModel,
 		input,
 		stream: true,
 		store: false,
@@ -335,7 +335,7 @@ async function runChatOnce(
 		}
 	}
 	if (stream) process.stdout.write("\n");
-	return { ok: true, text, latency_ms: Date.now() - t0, model: job.model ?? DEFAULT_CHAT_MODEL };
+	return { ok: true, text, latency_ms: Date.now() - t0, model: job.model ?? cfg.chatModel };
 }
 
 program

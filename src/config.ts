@@ -53,6 +53,7 @@ export interface Config {
 	timeoutMs: number;
 	rateHourlyHard: number;
 	imageModel: string;
+	chatModel: string;
 	authFilePath: string | undefined;
 	dataHome: string;
 }
@@ -81,6 +82,11 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
 			env.OAI_BRIDGE_IMAGE_MODEL ??
 			env.CHATGPT_BRIDGE_IMAGE_MODEL ??
 			DEFAULTS.imageModel,
+		chatModel:
+			overrides.chatModel ??
+			env.OAI_BRIDGE_CHAT_MODEL ??
+			env.CHATGPT_BRIDGE_CHAT_MODEL ??
+			DEFAULTS.chatModel,
 		authFilePath:
 			overrides.authFilePath ?? env.OAI_BRIDGE_AUTH_FILE ?? env.CHATGPT_BRIDGE_AUTH_FILE,
 		dataHome: overrides.dataHome ?? path.join(homeDir(), ".oai-bridge"),
