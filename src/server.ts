@@ -450,7 +450,7 @@ export function createApp(cfg: Config) {
 	return { app, auth, upstream };
 }
 
-export const VERSION = "0.3.0";
+export const VERSION = "0.4.0";
 
 // Re-exported with this constant; /health and CLI both use it.
 // Bumping a release: change here + package.json + CHANGELOG.md.

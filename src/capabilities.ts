@@ -327,15 +327,44 @@ export const CAPABILITIES: Capabilities = {
 		},
 		{
 			name: "mcp",
-			summary: "Run as a Model Context Protocol server over stdio.",
-			args: {},
-			returns: "speaks MCP on stdin/stdout",
+			summary:
+				"Run as a Model Context Protocol server over stdio (default) or Streamable HTTP. Over HTTP the bridge also serves generated images at capability URLs, so export_image returns a link instead of inline base64.",
+			args: {
+				transport: {
+					type: "string",
+					default: "stdio",
+					values: ["stdio", "http"],
+					doc: "env: OAI_BRIDGE_MCP_TRANSPORT",
+				},
+				host: {
+					type: "string",
+					default: "127.0.0.1",
+					doc: "http only. Non-loopback requires --token. env: OAI_BRIDGE_MCP_HOST",
+				},
+				port: { type: "number", default: 10532, doc: "http only. env: OAI_BRIDGE_MCP_PORT" },
+				"public-url": {
+					type: "string",
+					doc: "http only. Externally reachable base for /files/<token> links, e.g. behind a reverse proxy. Defaults to http://<host>:<port>. env: OAI_BRIDGE_PUBLIC_URL",
+				},
+				token: {
+					type: "string",
+					doc: "http only. Bearer token required on /mcp. env: OAI_BRIDGE_MCP_TOKEN",
+				},
+			},
+			returns:
+				"stdio: speaks MCP on stdin/stdout. http: long-running foreground process serving /mcp, /files/<token>, /health",
 			side_effects:
-				"Stdin/stdout reserved for MCP protocol; errors go to stderr. Use `install --for <ide>` to register the launch command in the IDE's config; the IDE then spawns this process.",
+				"stdio: stdin/stdout reserved for MCP protocol; errors go to stderr. Use `install --for <ide>` to register the launch command in the IDE's config; the IDE then spawns this process. http: binds host:port; refuses a non-loopback host without --token. Shut down with SIGINT/SIGTERM.",
 			idempotent: false,
 			// `mcp` itself launches the server; the `image` and `chat` tools inside are rate-limited.
 			rate_limited: false,
-			examples: [{ cmd: "oai-bridge mcp" }],
+			examples: [
+				{ cmd: "oai-bridge mcp" },
+				{ cmd: "oai-bridge mcp --transport http --port 10532" },
+				{
+					cmd: "oai-bridge mcp --transport http --host 0.0.0.0 --token $OAI_BRIDGE_MCP_TOKEN --public-url https://bridge.example.com",
+				},
+			],
 		},
 	],
 };

@@ -32,6 +32,17 @@ The bridge contacts only two hosts:
 
 You can verify with `tcpdump`/`netstat`/Wireshark. You can also override either via env vars (`OAI_BRIDGE_CLIENT_ID`, or the legacy `CHATGPT_BRIDGE_CLIENT_ID`, for OAuth client, no override for hosts — that's intentional).
 
+## Inbound listeners
+
+`serve` and `mcp --transport http` accept inbound connections. Neither changes the egress list above.
+
+`mcp --transport http`:
+
+- Binds `127.0.0.1:10532` by default. It refuses to bind any non-loopback host unless `--token` (or `OAI_BRIDGE_MCP_TOKEN`) is set.
+- With a token, `/mcp` requires `Authorization: Bearer <token>`. The comparison is constant-time over SHA-256 digests.
+- Without a token, `/mcp` also rejects any `Host` header that is not loopback or the `--public-url` host. This blocks DNS-rebinding attacks from a web page in your browser.
+- `GET /files/<token>` is unauthenticated by design. Each generated PNG gets a random 128-bit token, and the URL is the capability: anyone holding the link can fetch that one file until the bridge restarts. Tokens are not derived from the path or prompt, and only files this process wrote are reachable. Treat the links like share links.
+
 ## Supply chain
 
 This package follows a few practices:

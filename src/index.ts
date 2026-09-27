@@ -37,3 +37,18 @@ export { CAPABILITIES, CAPABILITY_VERB_NAMES } from "./capabilities.ts";
 export type { Capabilities, CapabilityVerb, CapabilityArg } from "./capabilities.ts";
 export { runInstall } from "./install.ts";
 export type { Target as InstallTarget, InstallResult, InstallOptions } from "./install.ts";
+export {
+	GenerationIndex,
+	createMcpContext,
+	createMcpServer,
+	fileUrl,
+	startMcpServer,
+} from "./mcp.ts";
+export type { GenerationRecord, McpContext, McpServeOptions } from "./mcp.ts";
+export {
+	DEFAULT_MCP_HTTP_PORT,
+	createMcpHttpApp,
+	resolveHttpOptions,
+	startMcpHttpServer,
+} from "./mcp-http.ts";
+export type { McpHttpAppOptions, ResolvedHttpOptions } from "./mcp-http.ts";
