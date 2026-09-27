@@ -92,7 +92,7 @@ The Codex endpoint (`/backend-api/codex/responses`) is different: it's the same 
 | `src/attachments.ts` | ~350 | Path/URL/data-URL resolver. MIME via extension + magic bytes. Path traversal + auth-file guard. 25 MiB / 100 MiB caps. |
 | `src/capabilities.ts` | ~340 | Single-source-of-truth machine-readable catalog (verbs, args, returns, idempotency, side effects, errors with structured remedies). |
 | `src/auth.ts` | ~250 | Token load / decode / refresh / persist (RFC 6749). |
-| `src/mcp.ts` | ~270 | MCP server (stdio); 3 tools mirror the CLI surface. |
+| `src/mcp.ts` | ~490 | MCP server (stdio); 5 tools. `generate_image`/`chat`/`health` mirror the CLI surface; `export_image`/`list_generations` are MCP-only, backed by an in-memory, per-process generations index. |
 | `src/upstream.ts` | ~120 | Single fetch wrapper + SSE parser + body normalizer. |
 | `src/io.ts` | ~110 | I/O helpers: `@file` resolution, JSONL stdin parser, JSON stdout, structured stderr errors, exit-code classification. |
 | `src/images.ts` | ~140 | Images-API request → `/responses` `image_generation` tool call. Refs become `input_image` parts; `tool_choice` flips to `auto`. |
