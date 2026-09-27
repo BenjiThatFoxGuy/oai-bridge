@@ -238,7 +238,7 @@ const TOOL_DEFINITIONS = [
 				},
 				model: {
 					type: "string",
-					description: "Upstream model id (e.g. gpt-5.2). Defaults to gpt-5.2.",
+					description: "Upstream model id (e.g. gpt-5.5). Defaults to gpt-5.5.",
 				},
 				attachments: {
 					type: "array",

@@ -54,7 +54,7 @@ npx oai-bridge chat "<the user's question>" --no-stream
 
 Output:
 ```json
-{"ok":true,"text":"…","latency_ms":1200,"model":"gpt-5.2"}
+{"ok":true,"text":"…","latency_ms":1200,"model":"gpt-5.5"}
 ```
 
 ### Chat with attachments

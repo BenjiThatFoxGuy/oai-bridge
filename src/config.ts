@@ -26,7 +26,7 @@ export function homeDir(): string {
  * the CLI `chat` verb, the MCP `chat` tool, and the capability catalog.
  * Bump in one place, not nine.
  */
-export const DEFAULT_CHAT_MODEL = "gpt-5.2";
+export const DEFAULT_CHAT_MODEL = "gpt-5.5";
 
 export const DEFAULTS = {
 	host: "127.0.0.1",

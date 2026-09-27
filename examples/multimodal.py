@@ -22,7 +22,7 @@ c = OpenAI(base_url="http://127.0.0.1:10531/v1", api_key="unused")
 def vision(image_path: str, question: str) -> str:
     b64 = base64.b64encode(Path(image_path).read_bytes()).decode()
     resp = c.chat.completions.create(
-        model="gpt-5.2",
+        model="gpt-5.5",
         messages=[{
             "role": "user",
             "content": [
@@ -39,7 +39,7 @@ def vision(image_path: str, question: str) -> str:
 #    Not portable to api.openai.com. The bridge resolves `path` server-side.
 def file_context(file_path: str, question: str) -> str:
     resp = c.chat.completions.create(
-        model="gpt-5.2",
+        model="gpt-5.5",
         messages=[{
             "role": "user",
             "content": [
