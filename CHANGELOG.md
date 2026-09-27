@@ -4,6 +4,16 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-09-27
+
+### Added — MCP HTTP transport
+
+- `oai-bridge mcp --transport http` serves MCP over Streamable HTTP (stateless) at `/mcp`, for remote MCP clients that connect by URL. Options `--host` (default `127.0.0.1`), `--port` (default `10532`), `--public-url`, and `--token`, with `OAI_BRIDGE_MCP_*` / `OAI_BRIDGE_PUBLIC_URL` env fallbacks. Stdio stays the default and is unchanged.
+- Generated PNGs are served at `GET /files/<token>`, where the token is a random 128-bit capability minted per generation. Over HTTP, `generate_image` and `list_generations` include a `url`, and `health().storage.files_base_url` is set.
+- `export_image` gains `format: "url" | "base64"`. It defaults to `url` over HTTP, so a full-size image no longer blows past a client's tool-result limit as several MB of base64. The default over stdio stays `base64`.
+- Security: the bridge refuses a non-loopback bind without `--token`. With a token, `/mcp` requires a bearer. Without one, `/mcp` pins the `Host` header to loopback (DNS-rebinding guard).
+- Library exports: `createMcpContext`, `createMcpServer`, `createMcpHttpApp`, `resolveHttpOptions`, `startMcpServer`, `startMcpHttpServer`, `GenerationIndex`.
+
 ### Added — MCP
 
 - `export_image(path)` — reads back a PNG `generate_image` previously wrote and returns its bytes as base64. For MCP clients that run in a different container/filesystem than the bridge and so can't read the returned path directly. Refuses any path that isn't exactly one this bridge process itself wrote (directory containment + an in-memory index check — no arbitrary filesystem reads).

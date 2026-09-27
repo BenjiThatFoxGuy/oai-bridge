@@ -63,12 +63,50 @@ program
 program
 	.command("mcp")
 	.description(
-		"Run as a Model Context Protocol server over stdio (for Claude Desktop, Cursor, Zed, Cline, etc.)",
+		"Run as a Model Context Protocol server over stdio (for Claude Desktop, Cursor, Zed, Cline, etc.) or Streamable HTTP",
 	)
-	.action(async () => {
+	.option("--transport <kind>", "stdio | http (env: OAI_BRIDGE_MCP_TRANSPORT)")
+	.option("--host <ip>", "http: bind host, default 127.0.0.1 (env: OAI_BRIDGE_MCP_HOST)")
+	.option("--port <number>", "http: port, default 10532 (env: OAI_BRIDGE_MCP_PORT)")
+	.option(
+		"--public-url <url>",
+		"http: externally reachable base for /files links (env: OAI_BRIDGE_PUBLIC_URL)",
+	)
+	.option(
+		"--token <secret>",
+		"http: bearer token required on /mcp; mandatory off loopback (env: OAI_BRIDGE_MCP_TOKEN)",
+	)
+	.action(async (opts) => {
+		const env = process.env;
+		const transport = opts.transport ?? env.OAI_BRIDGE_MCP_TRANSPORT ?? "stdio";
+		if (transport !== "stdio" && transport !== "http") {
+			process.exit(
+				writeError(`invalid --transport: ${transport}`, {
+					remedy: { action: "use one of", values: ["stdio", "http"] },
+				}),
+			);
+		}
+		const host = opts.host ?? env.OAI_BRIDGE_MCP_HOST;
+		const portRaw = opts.port ?? env.OAI_BRIDGE_MCP_PORT;
+		const port = portRaw !== undefined && portRaw !== "" ? Number(portRaw) : undefined;
+		if (port !== undefined && !Number.isInteger(port)) {
+			process.exit(writeError(`invalid --port: ${portRaw}`));
+		}
+		const publicUrl = opts.publicUrl ?? env.OAI_BRIDGE_PUBLIC_URL;
+		const token = opts.token ?? env.OAI_BRIDGE_MCP_TOKEN;
 		const cfg = loadConfig();
 		const { startMcpServer } = await import("./mcp.ts");
-		await startMcpServer(cfg);
+		try {
+			await startMcpServer(cfg, {
+				transport,
+				...(host ? { host } : {}),
+				...(port !== undefined ? { port } : {}),
+				...(publicUrl ? { publicUrl } : {}),
+				...(token ? { token } : {}),
+			});
+		} catch (e) {
+			process.exit(writeError((e as Error).message, { exitCode: 1 }));
+		}
 	});
 
 /* ------------------------------- doctor --------------------------------- */

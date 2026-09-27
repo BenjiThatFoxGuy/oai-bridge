@@ -191,3 +191,130 @@ describe("handleListGenerations", () => {
 		expect(parsed.count).toBe(0);
 	});
 });
+
+describe("GenerationIndex tokens", () => {
+	let dataHome: string;
+	let index: GenerationIndex;
+
+	beforeEach(async () => {
+		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "oai-bridge-mcp-test-"));
+		index = new GenerationIndex(dataHome);
+	});
+
+	afterEach(async () => {
+		await fs.rm(dataHome, { recursive: true, force: true });
+	});
+
+	test("add() mints a unique 22-char base64url token per record", () => {
+		const tokens = new Set<string>();
+		for (let i = 0; i < 50; i++) {
+			const rec = index.add({
+				path: path.join(index.dir, `${i}.png`),
+				prompt: `p${i}`,
+				size: "1024x1024",
+				quality: "high",
+				bytes: 1,
+				createdAtMs: i,
+			});
+			expect(rec.token).toMatch(/^[A-Za-z0-9_-]{22}$/);
+			tokens.add(rec.token);
+		}
+		expect(tokens.size).toBe(50);
+	});
+
+	test("byToken() resolves live tokens and forgets evicted ones", () => {
+		const first = index.add({
+			path: path.join(index.dir, "first.png"),
+			prompt: "first",
+			size: "1024x1024",
+			quality: "high",
+			bytes: 1,
+			createdAtMs: 0,
+		});
+		expect(index.byToken(first.token)?.path).toBe(first.path);
+		expect(index.byToken("A".repeat(22))).toBeUndefined();
+		for (let i = 0; i < 200; i++) {
+			index.add({
+				path: path.join(index.dir, `${i}.png`),
+				prompt: `p${i}`,
+				size: "1024x1024",
+				quality: "high",
+				bytes: 1,
+				createdAtMs: i + 1,
+			});
+		}
+		expect(index.byToken(first.token)).toBeUndefined();
+	});
+});
+
+describe("export_image / list_generations URL format", () => {
+	const BASE = "https://bridge.example.com";
+	let dataHome: string;
+	let index: GenerationIndex;
+	let filePath: string;
+	let token: string;
+
+	beforeEach(async () => {
+		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "oai-bridge-mcp-test-"));
+		index = new GenerationIndex(dataHome);
+		await fs.mkdir(index.dir, { recursive: true });
+		filePath = path.join(index.dir, "gen.png");
+		await fs.writeFile(filePath, Buffer.from([1, 2, 3, 4]));
+		token = index.add({
+			path: filePath,
+			prompt: "a fox",
+			size: "1024x1024",
+			quality: "high",
+			bytes: 4,
+			createdAtMs: Date.now(),
+		}).token;
+	});
+
+	afterEach(async () => {
+		await fs.rm(dataHome, { recursive: true, force: true });
+	});
+
+	test("defaults to url when the bridge hosts files", async () => {
+		const result = await handleExportImage(index, { path: filePath }, BASE);
+		expect(result.isError).toBeUndefined();
+		const parsed = JSON.parse(result.content[0]?.text ?? "{}");
+		expect(parsed.url).toBe(`${BASE}/files/${token}`);
+		expect(parsed.bytes).toBe(4);
+		expect(parsed.b64_data).toBeUndefined();
+	});
+
+	test("explicit base64 still works when hosting files", async () => {
+		const result = await handleExportImage(index, { path: filePath, format: "base64" }, BASE);
+		const parsed = JSON.parse(result.content[0]?.text ?? "{}");
+		expect(Buffer.from(parsed.b64_data, "base64")).toEqual(Buffer.from([1, 2, 3, 4]));
+	});
+
+	test("defaults to base64 without a files base", async () => {
+		const result = await handleExportImage(index, { path: filePath });
+		const parsed = JSON.parse(result.content[0]?.text ?? "{}");
+		expect(parsed.b64_data).toBeDefined();
+		expect(parsed.url).toBeUndefined();
+	});
+
+	test("explicit url over stdio is an error", async () => {
+		const result = await handleExportImage(index, { path: filePath, format: "url" });
+		expect(result.isError).toBe(true);
+		expect(result.content[0]?.text).toMatch(/--transport http/);
+	});
+
+	test("url format still refuses paths the bridge did not write", async () => {
+		const untracked = path.join(index.dir, "untracked.png");
+		await fs.writeFile(untracked, Buffer.from([9]));
+		const result = await handleExportImage(index, { path: untracked, format: "url" }, BASE);
+		expect(result.isError).toBe(true);
+	});
+
+	test("list_generations includes url only when hosting files", async () => {
+		const withUrl = JSON.parse(
+			(await handleListGenerations(index, {}, BASE)).content[0]?.text ?? "{}",
+		);
+		expect(withUrl.generations[0].url).toBe(`${BASE}/files/${token}`);
+		const noUrl = JSON.parse((await handleListGenerations(index, {})).content[0]?.text ?? "{}");
+		expect(noUrl.generations[0].url).toBeUndefined();
+	});
+});

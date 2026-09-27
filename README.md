@@ -215,7 +215,7 @@ oai-bridge chat <prompt|@file|->     Send a text or multimodal message
 oai-bridge image <prompt|@file|->    Generate an image (with optional --ref)
 oai-bridge models                    List available chat + image models
 oai-bridge serve                     Start the OpenAI-compatible HTTP server
-oai-bridge mcp                       Run as a Model Context Protocol server (stdio)
+oai-bridge mcp                       Run as a Model Context Protocol server (stdio, or --transport http)
 oai-bridge doctor                    Health checks; exit 0 if healthy
 ```
 
@@ -306,7 +306,7 @@ After `oai-bridge install --for <target>`, restart the IDE. Five MCP tools becom
 
 - `chat(prompt, system?, model?, attachments?)` — assistant reply as plain text. `attachments` accepts paths or URLs; images become vision input, text files become contextual file_data.
 - `generate_image(prompt, out?, size?, quality?, references?)` — saves a PNG into the bridge's generations directory, returns the absolute path. `references` (up to 8) shape the output's style/composition.
-- `export_image(path)` — reads back a PNG `generate_image` wrote and returns its bytes as base64. For MCP clients that run in a different container/filesystem than the bridge and so can't read the returned path directly.
+- `export_image(path, format?)` — hands back a PNG `generate_image` wrote, for MCP clients that run in a different container/filesystem than the bridge and so can't read the returned path directly. `format: "url"` (default over the HTTP transport) returns a link the bridge serves itself; `format: "base64"` (default over stdio) returns the bytes inline. A full-size PNG is several MB of base64 and can exceed a client's tool-result limit, so prefer `url` when available.
 - `list_generations(limit?)` — generations still on disk from the bridge's current run, most recent first.
 - `health()` — bridge state snapshot, including whether the generations directory is currently writable.
 
@@ -325,6 +325,40 @@ If you'd rather configure manually, the MCP entry is:
 }
 ```
 
+#### HTTP transport (remote MCP clients)
+
+`oai-bridge mcp --transport http` serves MCP over Streamable HTTP instead of stdio, for clients that connect by URL rather than spawning a process:
+
+```bash
+oai-bridge mcp --transport http                     # http://127.0.0.1:10532/mcp, no auth, loopback only
+oai-bridge mcp --transport http --host 0.0.0.0 --port 10532 \
+  --token "$OAI_BRIDGE_MCP_TOKEN" --public-url https://bridge.example.com
+```
+
+Routes:
+
+| Path | Notes |
+|---|---|
+| `/mcp` | MCP Streamable HTTP (stateless). Requires `Authorization: Bearer <token>` when `--token` is set. Without a token, only loopback `Host` headers are accepted. |
+| `GET /files/<token>` | A PNG this process generated. The 128-bit token in the URL is the authorization, so links open in a browser. Dies with the process. |
+| `GET /health` | Liveness: `{ ok, version, transport }`. |
+
+The bridge refuses to bind a non-loopback host without `--token`. `--public-url` sets the base used in `/files/` links. It defaults to `http://<host>:<port>`, so set it when the bridge sits behind a reverse proxy.
+
+Reverse proxy (nginx) example. Proxy both `/mcp` and `/files/`, and turn buffering off so SSE (including the 15-second keepalives during a ~60s `generate_image`) reaches the client:
+
+```nginx
+location /mcp {
+  proxy_pass http://127.0.0.1:10532;
+  proxy_http_version 1.1;
+  proxy_buffering off;
+  proxy_read_timeout 300s;
+}
+location /files/ {
+  proxy_pass http://127.0.0.1:10532;
+}
+```
+
 Full integrations guide: [docs/integrations.md](./docs/integrations.md).
 
 ---
@@ -340,6 +374,11 @@ Defaults are sensible. Override via environment variables:
 | `OAI_BRIDGE_AUTH_FILE` | `CHATGPT_BRIDGE_AUTH_FILE` | (auto) | Override path to `auth.json` |
 | `OAI_BRIDGE_IMAGE_MODEL` | `CHATGPT_BRIDGE_IMAGE_MODEL` | `gpt-5.5` | Text model that invokes the image tool |
 | `OAI_BRIDGE_CLIENT_ID` | `CHATGPT_BRIDGE_CLIENT_ID` | (Codex CLI's client_id) | OAuth client_id |
+| `OAI_BRIDGE_MCP_TRANSPORT` | | `stdio` | `mcp` transport: `stdio` or `http` |
+| `OAI_BRIDGE_MCP_HOST` | | `127.0.0.1` | `mcp --transport http` bind host |
+| `OAI_BRIDGE_MCP_PORT` | | `10532` | `mcp --transport http` port |
+| `OAI_BRIDGE_PUBLIC_URL` | | `http://<host>:<port>` | Base URL for `/files/` links |
+| `OAI_BRIDGE_MCP_TOKEN` | | (none) | Bearer token for `/mcp`; required off loopback |
 
 The `CHATGPT_BRIDGE_*` names are deprecated but kept working indefinitely for existing installs — `OAI_BRIDGE_*` wins if both are set.
 

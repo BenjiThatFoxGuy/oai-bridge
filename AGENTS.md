@@ -16,6 +16,7 @@ src/
   upstream.ts     # single fetch wrapper + SSE parser
   images.ts       # /v1/images/generations translator
   mcp.ts          # MCP server (oai-bridge mcp)
+  mcp-http.ts     # MCP Streamable HTTP transport + /files host (mcp --transport http)
   config.ts       # defaults + env var overrides
   index.ts        # public library API exports
 test/             # unit tests (bun test)
@@ -90,7 +91,7 @@ See [docs/releasing.md](./docs/releasing.md) — three places need updating: `pa
 
 - **Never log token contents.** `pino` is not currently used; if you add any logger, configure redaction first. Currently we just `console.error` text — never include the access_token.
 - **Never write to `auth.json` outside the `Auth` class.** That file is the user's credential vault.
-- **Never expand the network surface.** Outbound traffic stays restricted to `chatgpt.com` and `auth.openai.com`.
+- **Never expand the network surface.** Outbound traffic stays restricted to `chatgpt.com` and `auth.openai.com`. (This rule is about egress. Inbound listeners are `serve` and `mcp --transport http`; see [docs/security.md](./docs/security.md).)
 - **Never add `console.log` to source.** Use `console.error` for any human-facing output (stdout is reserved for protocol traffic in `mcp` mode).
 - **Never commit the contents of `dist/`** to git — `.gitignore` blocks it. Distributed via `bun run build` + `npm publish`.
 - **Never add CRLF line endings.** `.gitattributes` enforces LF; biome formatter rejects CRLF.
