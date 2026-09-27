@@ -19,7 +19,7 @@ with open("screenshot.png", "rb") as f:
     b64 = base64.b64encode(f.read()).decode()
 
 resp = c.chat.completions.create(
-    model="gpt-5.2",
+    model="gpt-5.5",
     messages=[{
         "role": "user",
         "content": [
@@ -42,7 +42,7 @@ oai-bridge chat "What font is this?" --attach screenshot.png
 ```python
 # Python — bridge-extension content part: {type:"input_file", file:{path|url|data,mime,filename}}
 resp = c.chat.completions.create(
-    model="gpt-5.2",
+    model="gpt-5.5",
     messages=[{
         "role": "user",
         "content": [
@@ -154,7 +154,7 @@ const openai = createOpenAI({
 });
 
 const { text } = await generateText({
-  model: openai("gpt-5.2"),
+  model: openai("gpt-5.5"),
   prompt: "Why is the sky blue?",
 });
 
@@ -169,7 +169,7 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     base_url="http://127.0.0.1:10531/v1",
     api_key="unused",
-    model="gpt-5.2",
+    model="gpt-5.5",
 )
 
 print(llm.invoke("Hello").content)

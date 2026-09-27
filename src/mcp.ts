@@ -238,7 +238,7 @@ const TOOL_DEFINITIONS = [
 				},
 				model: {
 					type: "string",
-					description: "Upstream model id (e.g. gpt-5.2). Defaults to gpt-5.2.",
+					description: `Upstream model id (e.g. ${DEFAULT_CHAT_MODEL}). Defaults to ${DEFAULT_CHAT_MODEL}.`,
 				},
 				attachments: {
 					type: "array",
@@ -432,7 +432,7 @@ async function handleChat(
 		path: "/responses",
 		method: "POST",
 		body: {
-			model: args.model ?? DEFAULT_CHAT_MODEL,
+			model: args.model ?? cfg.chatModel,
 			input,
 			stream: true,
 			store: false,

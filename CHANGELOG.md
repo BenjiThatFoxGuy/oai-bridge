@@ -4,6 +4,12 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-09-27
+
+### Changed
+
+- Default chat model bumped from `gpt-5.2` to `gpt-5.5`. `gpt-5.2` is no longer supported through the Codex/ChatGPT bridge.
+
 ## [0.4.0] — 2026-09-27
 
 ### Added — MCP HTTP transport
