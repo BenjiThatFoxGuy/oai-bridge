@@ -20,10 +20,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/BenjiThatFoxGuy/chatgpt-bridge.git"
+		"url": "git+https://github.com/BenjiThatFoxGuy/oai-bridge.git"
 	},
-	"homepage": "https://github.com/BenjiThatFoxGuy/chatgpt-bridge#readme",
-	"bugs": "https://github.com/BenjiThatFoxGuy/chatgpt-bridge/issues",
+	"homepage": "https://github.com/BenjiThatFoxGuy/oai-bridge#readme",
+	"bugs": "https://github.com/BenjiThatFoxGuy/oai-bridge/issues",
 	"type": "module",
 	"bin": {
 		"oai-bridge": "dist/cli.js"

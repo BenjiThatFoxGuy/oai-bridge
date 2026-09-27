@@ -23,7 +23,7 @@ first release has to happen once, by hand, before CI can take over:
    - **Expiration:** 1 year is reasonable; put a reminder somewhere to
      rotate it before it lapses. An expired token just fails CI loudly with
      `ENEEDAUTH` — it doesn't fail open.
-4. Add it as `NPM_TOKEN` at <https://github.com/BenjiThatFoxGuy/chatgpt-bridge/settings/secrets/actions>
+4. Add it as `NPM_TOKEN` at <https://github.com/BenjiThatFoxGuy/oai-bridge/settings/secrets/actions>
    (or via `gh secret set NPM_TOKEN`).
 
 Every release after that goes through the tag-push → CI path below; you

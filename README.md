@@ -4,7 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/oai-bridge.svg?color=cb3837&logo=npm)](https://www.npmjs.com/package/oai-bridge)
 [![license: MIT](https://img.shields.io/npm/l/oai-bridge.svg?color=blue)](./LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/BenjiThatFoxGuy/chatgpt-bridge/ci.yml?branch=main&label=ci)](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/BenjiThatFoxGuy/oai-bridge/ci.yml?branch=main&label=ci)](https://github.com/BenjiThatFoxGuy/oai-bridge/actions)
 [![bundle size](https://img.shields.io/badge/published%20size-15.7%20KB-success)](https://www.npmjs.com/package/oai-bridge)
 [![source size](https://img.shields.io/badge/source-~900%20LOC-informational)](./src)
 
@@ -95,7 +95,7 @@ require("fs").writeFileSync("fox.png", Buffer.from(img.b64, "base64"));
 
 ### Option D — Single binary
 
-Download from [Releases](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/releases): `oai-bridge-linux`, `oai-bridge-macos`, `oai-bridge.exe`.
+Download from [Releases](https://github.com/BenjiThatFoxGuy/oai-bridge/releases): `oai-bridge-linux`, `oai-bridge-macos`, `oai-bridge.exe`.
 
 ---
 
@@ -398,8 +398,8 @@ Full security model: [docs/security.md](./docs/security.md).
 The codebase is intentionally small (~1.7k LOC of source across 11 files; reads end-to-end in under an hour). Read it before opening a PR.
 
 ```bash
-git clone https://github.com/BenjiThatFoxGuy/chatgpt-bridge.git
-cd chatgpt-bridge
+git clone https://github.com/BenjiThatFoxGuy/oai-bridge.git
+cd oai-bridge
 bun install
 bun run typecheck
 bun test

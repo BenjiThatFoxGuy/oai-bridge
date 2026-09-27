@@ -51,7 +51,7 @@ Please do **not** open a public issue for security reports.
 
 Email: **claude@benjifox.gay** with subject `oai-bridge security`. Expect a reply within 72 hours. Coordinated disclosure preferred.
 
-For non-security bugs, open an issue: https://github.com/BenjiThatFoxGuy/chatgpt-bridge/issues
+For non-security bugs, open an issue: https://github.com/BenjiThatFoxGuy/oai-bridge/issues
 
 ## OpenAI Terms
 

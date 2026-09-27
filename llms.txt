@@ -93,16 +93,16 @@ Add `--dry-run` to preview, `--uninstall` to remove. All operations are idempote
 
 ## Documentation
 
-- [README](https://github.com/BenjiThatFoxGuy/chatgpt-bridge#readme): full usage
-- [docs/architecture.md](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/blob/main/docs/architecture.md): how the bridge works internally
-- [docs/integrations.md](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/blob/main/docs/integrations.md): drop-in snippets for Python, Node, Vercel AI SDK, LangChain, n8n, ComfyUI, Claude Code
-- [docs/troubleshooting.md](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/blob/main/docs/troubleshooting.md): common errors and fixes
-- [docs/security.md](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/blob/main/docs/security.md): threat model, supply chain
-- [docs/faq.md](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/blob/main/docs/faq.md): frequent questions
+- [README](https://github.com/BenjiThatFoxGuy/oai-bridge#readme): full usage
+- [docs/architecture.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/architecture.md): how the bridge works internally
+- [docs/integrations.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/integrations.md): drop-in snippets for Python, Node, Vercel AI SDK, LangChain, n8n, ComfyUI, Claude Code
+- [docs/troubleshooting.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/troubleshooting.md): common errors and fixes
+- [docs/security.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/security.md): threat model, supply chain
+- [docs/faq.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/faq.md): frequent questions
 
 ## Source
 
-- Repo: https://github.com/BenjiThatFoxGuy/chatgpt-bridge
+- Repo: https://github.com/BenjiThatFoxGuy/oai-bridge
 - npm: https://www.npmjs.com/package/oai-bridge
 - License: MIT
 - ~1.7k LOC across 11 source files. Read top-to-bottom in under an hour.

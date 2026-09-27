@@ -97,7 +97,7 @@ npm i -g oai-bridge
 oai-bridge serve
 ```
 
-Or download the standalone binary from [Releases](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/releases).
+Or download the standalone binary from [Releases](https://github.com/BenjiThatFoxGuy/oai-bridge/releases).
 
 ### `Cannot find module 'oai-bridge'` in your code
 
@@ -117,7 +117,7 @@ npm i oai-bridge   # in your project's directory
 
 ## When to file an issue
 
-Open one at https://github.com/BenjiThatFoxGuy/chatgpt-bridge/issues with:
+Open one at https://github.com/BenjiThatFoxGuy/oai-bridge/issues with:
 
 1. Full output of `oai-bridge doctor`.
 2. The exact request body (redact prompts if private).
