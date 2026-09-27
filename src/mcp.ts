@@ -1,5 +1,6 @@
 /**
- * MCP server: exposes the bridge as a Model Context Protocol server over stdio.
+ * MCP server: exposes the bridge as a Model Context Protocol server, over
+ * stdio (default) or Streamable HTTP (`oai-bridge mcp --transport http`).
  *
  * Plug into Claude Desktop / Cursor / Zed / Cline / any MCP client with:
  *
@@ -19,10 +20,12 @@
  *       → writes PNG to disk under this process's generations directory,
  *         returns its absolute path. `references` are optional reference
  *         images that drive style/composition.
- *   - export_image(path)
- *       → reads back a PNG this same bridge process wrote and returns its
- *         bytes as base64, for callers (e.g. an MCP client in a different
- *         container) that cannot read the bridge's filesystem directly.
+ *   - export_image(path, format?)
+ *       → hands back a PNG this same bridge process wrote, for callers (e.g.
+ *         an MCP client in a different container) that cannot read the
+ *         bridge's filesystem directly. Over the HTTP transport this is a
+ *         capability URL served by the bridge itself (GET /files/<token>);
+ *         over stdio, or with format "base64", it is the bytes inline.
  *   - list_generations(limit?)
  *       → generations still on disk from this bridge process's current run.
  *   - chat(prompt, system?, model?, attachments?)
@@ -37,8 +40,8 @@
  * descriptions below, which repeat this in-band for the calling agent.
  */
 
+import { randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -61,7 +64,17 @@ export interface GenerationRecord {
 	quality: string;
 	bytes: number;
 	createdAtMs: number;
+	/**
+	 * Unguessable id (128 bits, base64url) naming this generation in
+	 * GET /files/<token> when the HTTP transport is hosting files. Never
+	 * derived from the path or prompt, so knowing one tells you nothing
+	 * about any other.
+	 */
+	token: string;
 }
+
+/** A record as handed to GenerationIndex.add(); the token is minted there. */
+export type NewGenerationRecord = Omit<GenerationRecord, "token"> & { token?: string };
 
 /**
  * Tracks PNGs this bridge process has written to `dir` (and only this
@@ -78,9 +91,21 @@ export class GenerationIndex {
 		this.dir = path.join(dataHome, "generations");
 	}
 
-	add(record: GenerationRecord): void {
-		this.entries.push(record);
+	add(record: NewGenerationRecord): GenerationRecord {
+		const full: GenerationRecord = { ...record, token: record.token ?? randomBytes(16).toString("base64url") };
+		this.entries.push(full);
 		if (this.entries.length > MAX_INDEX_ENTRIES) this.entries.shift();
+		return full;
+	}
+
+	/** Exact-match lookup by path. Undefined if this process didn't write it. */
+	get(absPath: string): GenerationRecord | undefined {
+		return this.entries.find((e) => e.path === absPath);
+	}
+
+	/** Exact-match lookup by token. Undefined for unknown or evicted tokens. */
+	byToken(token: string): GenerationRecord | undefined {
+		return this.entries.find((e) => e.token === token);
 	}
 
 	/** True only if `absPath` is exactly a path this process wrote. */
@@ -94,12 +119,32 @@ export class GenerationIndex {
 	}
 }
 
+/**
+ * Everything a tool handler needs, shared across every MCP session the
+ * process serves. `publicBaseUrl` is set only when the HTTP transport is
+ * hosting /files; its presence is what switches export_image (and the
+ * generate_image summary) over to URLs.
+ */
+export interface McpContext {
+	cfg: Config;
+	auth: Auth;
+	upstream: Upstream;
+	index: GenerationIndex;
+	publicBaseUrl?: string;
+}
+
+/** URL a caller can GET to fetch `rec`, or undefined when not hosting files. */
+export function fileUrl(publicBaseUrl: string | undefined, rec: GenerationRecord): string | undefined {
+	if (!publicBaseUrl) return undefined;
+	return `${publicBaseUrl.replace(/\/+$/, "")}/files/${rec.token}`;
+}
+
 const TOOL_DEFINITIONS = [
 	{
 		name: "generate_image",
 		description:
 			"Generate an image using the user's ChatGPT subscription via OAuth (no API key, no per-image cost). Optional `references` array shapes style/composition. Writes a PNG into this bridge process's generations directory and returns its absolute path. " +
-			"IMPORTANT: this storage is NOT durable -- it lives only as long as the current bridge process, and a restart discards it permanently along with the list_generations index. If you (the calling agent) cannot read the bridge's filesystem directly, that returned path is not itself useful to you: call export_image on it before the turn ends, promptly, not as a deferred or batched step. Before calling this tool at all, call health() and check `storage.writable` rather than assuming the environment is reachable just because a call reports success.",
+			"IMPORTANT: this storage is NOT durable -- it lives only as long as the current bridge process, and a restart discards it permanently along with the list_generations index. When the bridge is running the HTTP transport, the result also carries a `url` you can hand straight to the user or fetch yourself. Otherwise, if you (the calling agent) cannot read the bridge's filesystem directly, that returned path is not itself useful to you: call export_image on it before the turn ends, promptly, not as a deferred or batched step. Before calling this tool at all, call health() and check `storage.writable` rather than assuming the environment is reachable just because a call reports success.",
 		inputSchema: {
 			type: "object",
 			properties: {
@@ -135,7 +180,8 @@ const TOOL_DEFINITIONS = [
 	{
 		name: "export_image",
 		description:
-			"Read back a PNG that THIS bridge process's generate_image previously wrote, and return its bytes as base64. Pure read + re-encode: no regeneration, no upstream call. " +
+			"Hand back a PNG that THIS bridge process's generate_image previously wrote. Pure read: no regeneration, no upstream call. " +
+			"Two formats. `url` (default when the bridge runs the HTTP transport): a capability URL the bridge itself serves, which anyone holding it can GET until the bridge restarts -- small result, works for any image size. `base64` (default over stdio, where there is no server to host a URL): the full PNG inline; a full-size PNG is several MB of text and can exceed a client's tool-result limit, so prefer `url` whenever it is available. " +
 			"Use this whenever you (the calling agent) cannot read the bridge's filesystem directly -- which is the common case, since the bridge and the calling MCP client often run in different containers/filesystems. `path` must be exactly a path this bridge process itself returned from generate_image or list_generations; it is refused otherwise (no arbitrary filesystem reads, no path traversal). " +
 			"Because the underlying storage is not durable across bridge restarts, export promptly -- in the same turn a fresh image is generated -- rather than deferring or batching exports for later.",
 		inputSchema: {
@@ -144,6 +190,12 @@ const TOOL_DEFINITIONS = [
 				path: {
 					type: "string",
 					description: "Absolute path previously returned by generate_image or list_generations.",
+				},
+				format: {
+					type: "string",
+					enum: ["url", "base64"],
+					description:
+						"`url` needs the HTTP transport and errors without it. Defaults to `url` when available, else `base64`.",
 				},
 			},
 			required: ["path"],
@@ -217,6 +269,7 @@ interface ChatArgs {
 
 interface ExportImageArgs {
 	path: string;
+	format?: "url" | "base64";
 }
 
 interface ListGenerationsArgs {
@@ -224,11 +277,10 @@ interface ListGenerationsArgs {
 }
 
 async function handleGenerateImage(
-	cfg: Config,
-	upstream: Upstream,
-	index: GenerationIndex,
+	ctx: McpContext,
 	args: GenerateImageArgs,
 ): Promise<{ content: Array<{ type: "text"; text: string }> }> {
+	const { cfg, upstream, index } = ctx;
 	const t0 = Date.now();
 	const size = args.size ?? "1024x1024";
 	const quality = args.quality ?? "high";
@@ -249,7 +301,7 @@ async function handleGenerateImage(
 	await fs.mkdir(index.dir, { recursive: true });
 	await fs.writeFile(outPath, Buffer.from(img.b64, "base64"));
 	const bytes = Buffer.byteLength(img.b64, "base64");
-	index.add({
+	const rec = index.add({
 		path: outPath,
 		prompt: args.prompt,
 		revisedPrompt: img.revisedPrompt,
@@ -258,32 +310,32 @@ async function handleGenerateImage(
 		bytes,
 		createdAtMs: Date.now(),
 	});
+	const url = fileUrl(ctx.publicBaseUrl, rec);
 	const summary = {
 		ok: true,
 		file: outPath,
+		...(url ? { url } : {}),
 		latency_ms: Date.now() - t0,
 		bytes,
 		revised_prompt: img.revisedPrompt ?? null,
 	};
+	const lead = url
+		? `Image saved to ${outPath} and served at ${url} until the bridge restarts. Hand that URL to the user (or fetch it) in this same turn rather than deferring.`
+		: `Image saved to ${outPath}. This is NOT durable across bridge restarts -- export it now (export_image) or hand it to the user in this same turn rather than deferring.`;
 	return {
-		content: [
-			{
-				type: "text",
-				text:
-					`Image saved to ${outPath}. This is NOT durable across bridge restarts -- ` +
-					`export it now (export_image) or hand it to the user in this same turn rather than deferring.\n\n${JSON.stringify(summary, null, 2)}`,
-			},
-		],
+		content: [{ type: "text", text: `${lead}\n\n${JSON.stringify(summary, null, 2)}` }],
 	};
 }
 
 export async function handleExportImage(
 	index: GenerationIndex,
 	args: ExportImageArgs,
+	publicBaseUrl?: string,
 ): Promise<{ content: Array<{ type: "text"; text: string }>; isError?: boolean }> {
 	const resolved = path.resolve(args.path);
 	const withinDir = resolved === index.dir || resolved.startsWith(index.dir + path.sep);
-	if (!withinDir || !index.has(resolved)) {
+	const rec = withinDir ? index.get(resolved) : undefined;
+	if (!rec) {
 		return {
 			isError: true,
 			content: [
@@ -293,6 +345,25 @@ export async function handleExportImage(
 				},
 			],
 		};
+	}
+	const format = args.format ?? (publicBaseUrl ? "url" : "base64");
+	if (format === "url") {
+		const url = fileUrl(publicBaseUrl, rec);
+		if (!url) {
+			return {
+				isError: true,
+				content: [
+					{
+						type: "text",
+						text: 'format "url" needs the bridge to host files, which only the HTTP transport does (`oai-bridge mcp --transport http`). This bridge is on stdio; retry with format "base64".',
+					},
+				],
+			};
+		}
+		// Stat rather than trust the index: the file can vanish under us.
+		const st = await fs.stat(resolved);
+		const result = { ok: true, path: resolved, url, bytes: st.size, mime: "image/png" };
+		return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
 	}
 	const bytes = await fs.readFile(resolved);
 	const result = {
@@ -308,6 +379,7 @@ export async function handleExportImage(
 export async function handleListGenerations(
 	index: GenerationIndex,
 	args: ListGenerationsArgs,
+	publicBaseUrl?: string,
 ): Promise<{ content: Array<{ type: "text"; text: string }> }> {
 	const limit = Math.max(1, Math.min(args.limit ?? 20, MAX_INDEX_ENTRIES));
 	const generations: Array<Record<string, unknown>> = [];
@@ -319,8 +391,10 @@ export async function handleListGenerations(
 			// Skip it rather than list something export_image can't read back.
 			continue;
 		}
+		const url = fileUrl(publicBaseUrl, rec);
 		generations.push({
 			path: rec.path,
+			...(url ? { url } : {}),
 			prompt: rec.prompt,
 			revised_prompt: rec.revisedPrompt ?? null,
 			size: rec.size,
@@ -386,15 +460,16 @@ async function probeStorageWritable(index: GenerationIndex): Promise<boolean> {
 }
 
 async function handleHealth(
-	cfg: Config,
-	auth: Auth,
-	index: GenerationIndex,
+	ctx: McpContext,
 ): Promise<{ content: Array<{ type: "text"; text: string }> }> {
+	const { cfg, auth, index } = ctx;
 	const storage = {
 		generations_dir: index.dir,
 		writable: await probeStorageWritable(index),
 		durable: false,
 		generations_in_memory: index.recent(MAX_INDEX_ENTRIES).length,
+		// Prefix export_image's `url` format lives under. Null on stdio: no URLs.
+		files_base_url: ctx.publicBaseUrl ? `${ctx.publicBaseUrl.replace(/\/+$/, "")}/files/` : null,
 	};
 	let status: Record<string, unknown>;
 	try {
@@ -427,11 +502,25 @@ async function handleHealth(
 	return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
 }
 
-export async function startMcpServer(cfg: Config): Promise<void> {
+/** Build the shared state every MCP session in this process draws on. */
+export function createMcpContext(cfg: Config, publicBaseUrl?: string): McpContext {
 	const auth = new Auth(cfg);
-	const upstream = new Upstream(cfg, auth);
-	const index = new GenerationIndex(cfg.dataHome);
+	return {
+		cfg,
+		auth,
+		upstream: new Upstream(cfg, auth),
+		index: new GenerationIndex(cfg.dataHome),
+		...(publicBaseUrl ? { publicBaseUrl } : {}),
+	};
+}
 
+/**
+ * A fresh MCP Server wired to `ctx`. Cheap to build: the HTTP transport
+ * makes one per request (stateless mode), while auth, upstream, and the
+ * generations index stay shared on `ctx`.
+ */
+export function createMcpServer(ctx: McpContext): Server {
+	const { cfg, upstream, index } = ctx;
 	const server = new Server(
 		{ name: "oai-bridge", version: VERSION },
 		{ capabilities: { tools: {} } },
@@ -446,24 +535,27 @@ export async function startMcpServer(cfg: Config): Promise<void> {
 		const args = (req.params.arguments ?? {}) as Record<string, unknown>;
 		try {
 			if (name === "generate_image") {
-				return await handleGenerateImage(
-					cfg,
-					upstream,
-					index,
-					args as unknown as GenerateImageArgs,
-				);
+				return await handleGenerateImage(ctx, args as unknown as GenerateImageArgs);
 			}
 			if (name === "export_image") {
-				return await handleExportImage(index, args as unknown as ExportImageArgs);
+				return await handleExportImage(
+					index,
+					args as unknown as ExportImageArgs,
+					ctx.publicBaseUrl,
+				);
 			}
 			if (name === "list_generations") {
-				return await handleListGenerations(index, args as unknown as ListGenerationsArgs);
+				return await handleListGenerations(
+					index,
+					args as unknown as ListGenerationsArgs,
+					ctx.publicBaseUrl,
+				);
 			}
 			if (name === "chat") {
 				return await handleChat(cfg, upstream, args as unknown as ChatArgs);
 			}
 			if (name === "health") {
-				return await handleHealth(cfg, auth, index);
+				return await handleHealth(ctx);
 			}
 			return {
 				isError: true,
@@ -482,8 +574,27 @@ export async function startMcpServer(cfg: Config): Promise<void> {
 		}
 	});
 
-	const transport = new StdioServerTransport();
-	await server.connect(transport);
-	// Process stays alive on stdio. No console.log here — stdout is the protocol channel.
-	void os; // silence unused if stripped
+	return server;
+}
+
+export interface McpServeOptions {
+	transport?: "stdio" | "http";
+	/** HTTP transport only. */
+	host?: string;
+	port?: number;
+	/** Externally reachable base for /files URLs (e.g. behind a reverse proxy). */
+	publicUrl?: string;
+	/** Bearer token required on /mcp. Unset means no auth on /mcp. */
+	token?: string;
+}
+
+export async function startMcpServer(cfg: Config, opts: McpServeOptions = {}): Promise<void> {
+	if (opts.transport === "http") {
+		const { startMcpHttpServer } = await import("./mcp-http.ts");
+		await startMcpHttpServer(cfg, opts);
+		return;
+	}
+	const server = createMcpServer(createMcpContext(cfg));
+	await server.connect(new StdioServerTransport());
+	// Process stays alive on stdio. No console.log here -- stdout is the protocol channel.
 }
