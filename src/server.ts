@@ -19,7 +19,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { AttachmentError, resolveAttachment } from "./attachments.ts";
 import { Auth, tokenExpiryMs } from "./auth.ts";
-import { type Config } from "./config.ts";
+import type { Config } from "./config.ts";
 import { ImageRequest, generateImage } from "./images.ts";
 import type { UpstreamError } from "./upstream.ts";
 import { Upstream, normalizeResponsesBody, parseSSE } from "./upstream.ts";

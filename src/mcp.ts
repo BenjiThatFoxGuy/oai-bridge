@@ -48,7 +48,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { resolveAttachments } from "./attachments.ts";
 import { Auth, tokenExpiryMs } from "./auth.ts";
-import { type Config } from "./config.ts";
+import { type Config, DEFAULT_CHAT_MODEL } from "./config.ts";
 import { generateImage } from "./images.ts";
 import { VERSION } from "./server.ts";
 import { Upstream } from "./upstream.ts";
@@ -238,7 +238,7 @@ const TOOL_DEFINITIONS = [
 				},
 				model: {
 					type: "string",
-					description: `Upstream model id (e.g. ${cfg.chatModel}). Defaults to ${cfg.chatModel}.`,
+					description: `Upstream model id (e.g. ${DEFAULT_CHAT_MODEL}). Defaults to ${DEFAULT_CHAT_MODEL}.`,
 				},
 				attachments: {
 					type: "array",
