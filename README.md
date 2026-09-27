@@ -1,15 +1,15 @@
-# chatgpt-bridge
+# oai-bridge
 
 > A localhost OpenAI-compatible HTTP proxy that uses your **ChatGPT subscription** (via OAuth) instead of a paid API key — including **image generation** with `gpt-image-2`.
 
-[![npm version](https://img.shields.io/npm/v/chatgpt-bridge.svg?color=cb3837&logo=npm)](https://www.npmjs.com/package/chatgpt-bridge)
-[![license: MIT](https://img.shields.io/npm/l/chatgpt-bridge.svg?color=blue)](./LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/l0z4n0-a1/chatgpt-bridge/ci.yml?branch=main&label=ci)](https://github.com/l0z4n0-a1/chatgpt-bridge/actions)
-[![bundle size](https://img.shields.io/badge/published%20size-15.7%20KB-success)](https://www.npmjs.com/package/chatgpt-bridge)
+[![npm version](https://img.shields.io/npm/v/oai-bridge.svg?color=cb3837&logo=npm)](https://www.npmjs.com/package/oai-bridge)
+[![license: MIT](https://img.shields.io/npm/l/oai-bridge.svg?color=blue)](./LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/BenjiThatFoxGuy/chatgpt-bridge/ci.yml?branch=main&label=ci)](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/actions)
+[![bundle size](https://img.shields.io/badge/published%20size-15.7%20KB-success)](https://www.npmjs.com/package/oai-bridge)
 [![source size](https://img.shields.io/badge/source-~900%20LOC-informational)](./src)
 
 ```bash
-npx chatgpt-bridge serve
+npx oai-bridge serve
 ```
 
 ```python
@@ -68,24 +68,24 @@ Read the deep dive: [docs/architecture.md](./docs/architecture.md).
 ### Option A — `npx` (zero install)
 
 ```bash
-npx chatgpt-bridge serve
+npx oai-bridge serve
 ```
 
 ### Option B — Global CLI
 
 ```bash
-npm i -g chatgpt-bridge
-chatgpt-bridge serve
+npm i -g oai-bridge
+oai-bridge serve
 ```
 
 ### Option C — As a library
 
 ```bash
-npm i chatgpt-bridge
+npm i oai-bridge
 ```
 
 ```ts
-import { Auth, Upstream, generateImage, loadConfig } from "chatgpt-bridge";
+import { Auth, Upstream, generateImage, loadConfig } from "oai-bridge";
 
 const cfg = loadConfig();
 const upstream = new Upstream(cfg, new Auth(cfg));
@@ -95,7 +95,7 @@ require("fs").writeFileSync("fox.png", Buffer.from(img.b64, "base64"));
 
 ### Option D — Single binary
 
-Download from [Releases](https://github.com/l0z4n0-a1/chatgpt-bridge/releases): `chatgpt-bridge-linux`, `chatgpt-bridge-macos`, `chatgpt-bridge.exe`.
+Download from [Releases](https://github.com/BenjiThatFoxGuy/chatgpt-bridge/releases): `oai-bridge-linux`, `oai-bridge-macos`, `oai-bridge.exe`.
 
 ---
 
@@ -112,7 +112,7 @@ This opens a browser, you sign in to ChatGPT, the CLI writes `~/.codex/auth.json
 Verify everything works:
 
 ```bash
-chatgpt-bridge doctor
+oai-bridge doctor
 ```
 
 Expected output:
@@ -179,7 +179,7 @@ import {
   runInstall,
   resolveAttachments,
   translateChatMessages,
-} from "chatgpt-bridge";
+} from "oai-bridge";
 
 // Generate an image, with optional reference images
 const cfg = loadConfig();
@@ -209,14 +209,14 @@ const input = await translateChatMessages(messages, cfg);
 Eight verbs. JSON to stdout when piped or `--json`; structured remedies on errors.
 
 ```
-chatgpt-bridge install --for <target>   Register the bridge with an IDE/agent (idempotent)
-chatgpt-bridge capabilities              Print the full machine-readable catalog
-chatgpt-bridge chat <prompt|@file|->     Send a text or multimodal message
-chatgpt-bridge image <prompt|@file|->    Generate an image (with optional --ref)
-chatgpt-bridge models                    List available chat + image models
-chatgpt-bridge serve                     Start the OpenAI-compatible HTTP server
-chatgpt-bridge mcp                       Run as a Model Context Protocol server (stdio)
-chatgpt-bridge doctor                    Health checks; exit 0 if healthy
+oai-bridge install --for <target>   Register the bridge with an IDE/agent (idempotent)
+oai-bridge capabilities              Print the full machine-readable catalog
+oai-bridge chat <prompt|@file|->     Send a text or multimodal message
+oai-bridge image <prompt|@file|->    Generate an image (with optional --ref)
+oai-bridge models                    List available chat + image models
+oai-bridge serve                     Start the OpenAI-compatible HTTP server
+oai-bridge mcp                       Run as a Model Context Protocol server (stdio)
+oai-bridge doctor                    Health checks; exit 0 if healthy
 ```
 
 `install --for <target>` accepts: `claude-code`, `claude-desktop`, `codex`, `cursor`, `zed`, `cline`, `continue`, `gemini-cli`, `aider`, `openai-sdk`, `all`. Add `--dry-run` to preview, `--uninstall` to revert.
@@ -225,35 +225,35 @@ chatgpt-bridge doctor                    Health checks; exit 0 if healthy
 
 ```bash
 # One-shot setup (the rest is agent-driven)
-chatgpt-bridge install --for claude-code
+oai-bridge install --for claude-code
 
 # Text only
-chatgpt-bridge chat "explain REST in one sentence"
+oai-bridge chat "explain REST in one sentence"
 
 # Vision — what's in this image?
-chatgpt-bridge chat "what font is this?" --attach screenshot.png
+oai-bridge chat "what font is this?" --attach screenshot.png
 
 # File as context
-chatgpt-bridge chat "audit this spec against OpenAPI 3.1" --attach spec.md
+oai-bridge chat "audit this spec against OpenAPI 3.1" --attach spec.md
 
 # Image generation
-chatgpt-bridge image "a small red fox under an oak tree, watercolor" --out fox.png
+oai-bridge image "a small red fox under an oak tree, watercolor" --out fox.png
 
 # Image with reference (style/composition transfer)
-chatgpt-bridge image "hero shot, brand-consistent" \
+oai-bridge image "hero shot, brand-consistent" \
   --ref moodboard.png --ref logo.svg --out hero.png
 
 # Batch via stdin JSONL (each line = one job, each result = one JSON line)
-chatgpt-bridge image - <<EOF
+oai-bridge image - <<EOF
 {"prompt":"hero v1","ref":["mood.png"],"out":"v1.png"}
 {"prompt":"hero v2","ref":["mood.png"],"out":"v2.png","quality":"medium"}
 EOF
 
 # Health check
-chatgpt-bridge doctor
+oai-bridge doctor
 
 # Start the OpenAI-SDK-compatible server
-chatgpt-bridge serve --port 11000
+oai-bridge serve --port 11000
 ```
 
 `gen <prompt>` is a deprecated alias for `image`; prints a stderr warning and forwards.
@@ -280,29 +280,29 @@ Working snippets for the most common tools:
 
 You don't have to hand-edit any config. Tell your agent:
 
-> *"Install chatgpt-bridge."*
+> *"Install oai-bridge."*
 
 It runs:
 
 ```bash
-npx chatgpt-bridge install --for claude-code   # or codex, cursor, zed, cline, continue, claude-desktop, gemini-cli, openai-sdk, aider, all
+npx oai-bridge install --for claude-code   # or codex, cursor, zed, cline, continue, claude-desktop, gemini-cli, openai-sdk, aider, all
 ```
 
-The command is idempotent: detects the target's config file location, merges the `chatgpt-bridge` entry, and reports back as JSON. Add `--dry-run` to preview; `--uninstall` to revert. Use `--for all` to register with every IDE detected on disk in one shot.
+The command is idempotent: detects the target's config file location, merges the `oai-bridge` entry, and reports back as JSON. Add `--dry-run` to preview; `--uninstall` to revert. Use `--for all` to register with every IDE detected on disk in one shot.
 
 Targets covered: `claude-code`, `claude-desktop`, `codex`, `cursor`, `zed`, `cline`, `continue`, `gemini-cli`, `aider` (snippet), `openai-sdk` (snippet), `all`.
 
 ### What an agent should read first
 
 ```bash
-chatgpt-bridge capabilities
+oai-bridge capabilities
 ```
 
 Returns the entire surface as a single JSON document: every verb, args, returns, idempotency, side effects, typical latency, and structured error remedies. Agents read it once at session start and need nothing else.
 
 ### Use with Claude Desktop / Cursor / Zed (MCP)
 
-After `chatgpt-bridge install --for <target>`, restart the IDE. Five MCP tools become available:
+After `oai-bridge install --for <target>`, restart the IDE. Five MCP tools become available:
 
 - `chat(prompt, system?, model?, attachments?)` — assistant reply as plain text. `attachments` accepts paths or URLs; images become vision input, text files become contextual file_data.
 - `generate_image(prompt, out?, size?, quality?, references?)` — saves a PNG into the bridge's generations directory, returns the absolute path. `references` (up to 8) shape the output's style/composition.
@@ -317,9 +317,9 @@ If you'd rather configure manually, the MCP entry is:
 ```json
 {
   "mcpServers": {
-    "chatgpt-bridge": {
+    "oai-bridge": {
       "command": "npx",
-      "args": ["-y", "chatgpt-bridge", "mcp"]
+      "args": ["-y", "oai-bridge", "mcp"]
     }
   }
 }
@@ -333,28 +333,31 @@ Full integrations guide: [docs/integrations.md](./docs/integrations.md).
 
 Defaults are sensible. Override via environment variables:
 
-| Env var | Default | What |
-|---|---|---|
-| `CHATGPT_BRIDGE_HOST` | `127.0.0.1` | Bind host |
-| `CHATGPT_BRIDGE_PORT` | `10531` | Bind port |
-| `CHATGPT_BRIDGE_AUTH_FILE` | (auto) | Override path to `auth.json` |
-| `CHATGPT_BRIDGE_IMAGE_MODEL` | `gpt-5.4-mini` | Text model that invokes the image tool |
-| `CHATGPT_BRIDGE_CLIENT_ID` | (Codex CLI's client_id) | OAuth client_id |
+| Env var | Legacy fallback | Default | What |
+|---|---|---|---|
+| `OAI_BRIDGE_HOST` | `CHATGPT_BRIDGE_HOST` | `127.0.0.1` | Bind host |
+| `OAI_BRIDGE_PORT` | `CHATGPT_BRIDGE_PORT` | `10531` | Bind port |
+| `OAI_BRIDGE_AUTH_FILE` | `CHATGPT_BRIDGE_AUTH_FILE` | (auto) | Override path to `auth.json` |
+| `OAI_BRIDGE_IMAGE_MODEL` | `CHATGPT_BRIDGE_IMAGE_MODEL` | `gpt-5.5` | Text model that invokes the image tool |
+| `OAI_BRIDGE_CLIENT_ID` | `CHATGPT_BRIDGE_CLIENT_ID` | (Codex CLI's client_id) | OAuth client_id |
+
+The `CHATGPT_BRIDGE_*` names are deprecated but kept working indefinitely for existing installs — `OAI_BRIDGE_*` wins if both are set.
 
 `auth.json` lookup order (first match wins):
 
-1. `$CHATGPT_BRIDGE_AUTH_FILE`
+1. `$OAI_BRIDGE_AUTH_FILE` (or legacy `$CHATGPT_BRIDGE_AUTH_FILE`)
 2. `$CHATGPT_LOCAL_HOME/auth.json`
 3. `$CODEX_HOME/auth.json`
 4. `~/.chatgpt-local/auth.json`
 5. `~/.codex/auth.json`
-6. `~/.chatgpt-bridge/auth.json`
+6. `~/.oai-bridge/auth.json`
+7. `~/.chatgpt-bridge/auth.json` (legacy)
 
 ---
 
 ## Comparison
 
-| | OpenAI API | `chatgpt-bridge` | Reverse-eng (`acheong08/ChatGPT`, etc.) |
+| | OpenAI API | `oai-bridge` | Reverse-eng (`acheong08/ChatGPT`, etc.) |
 |---|---|---|---|
 | Auth | API key | OAuth (Codex flow) | Cookie / session token |
 | Cost per image | $0.02–$0.21 | $0 (subscription) | $0 (subscription) |
@@ -395,7 +398,7 @@ Full security model: [docs/security.md](./docs/security.md).
 The codebase is intentionally small (~1.7k LOC of source across 11 files; reads end-to-end in under an hour). Read it before opening a PR.
 
 ```bash
-git clone https://github.com/l0z4n0-a1/chatgpt-bridge.git
+git clone https://github.com/BenjiThatFoxGuy/chatgpt-bridge.git
 cd chatgpt-bridge
 bun install
 bun run typecheck
@@ -411,6 +414,6 @@ For security issues: [SECURITY.md](./SECURITY.md). Do not file public issues.
 
 ## License
 
-MIT © [João Gabriel Lozano](https://github.com/l0z4n0-a1) — 2026
+MIT © [João Gabriel Lozano](https://github.com/l0z4n0-a1) — 2026. This fork (`oai-bridge`) is maintained by [BenjiThatFoxGuy](https://github.com/BenjiThatFoxGuy).
 
 This project is **clean-room implemented**. It contains no code copied from `openai-oauth`, `ima2-gen`, or any other source under non-MIT-compatible licenses. The OAuth flow follows RFC 6749 and the upstream contract is observed from public OpenAI documentation.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * chatgpt-bridge CLI.
+ * oai-bridge CLI.
  *
  * Verbs (10):
  *   serve, mcp, doctor, login, version, install, capabilities,  (existing)
@@ -37,7 +37,7 @@ import { Upstream, type UpstreamError, parseSSE } from "./upstream.ts";
 
 const program = new Command();
 program
-	.name("chatgpt-bridge")
+	.name("oai-bridge")
 	.description(
 		"Localhost OpenAI-compatible HTTP proxy that uses your ChatGPT subscription via OAuth.",
 	)
@@ -124,7 +124,7 @@ program
 				if (!res.ok) {
 					remedy.push({
 						check: "upstream",
-						cmd: "chatgpt-bridge doctor",
+						cmd: "oai-bridge doctor",
 						why: "Re-run after a brief wait; transient upstream errors are common.",
 					});
 				}
@@ -136,7 +136,7 @@ program
 				checks.push({ name: "upstream", ok: false, detail: (e as Error).message });
 				remedy.push({
 					check: "upstream",
-					cmd: "chatgpt-bridge doctor",
+					cmd: "oai-bridge doctor",
 					why: "Network or upstream issue — retry.",
 				});
 			}
@@ -184,7 +184,7 @@ program
 	.action(() => {
 		const cfg = loadConfig();
 		writeJson({
-			name: "chatgpt-bridge",
+			name: "oai-bridge",
 			version: VERSION,
 			runtime: typeof Bun !== "undefined" ? `bun ${Bun.version}` : `node ${process.version}`,
 			default_port: cfg.port,
@@ -211,7 +211,7 @@ program
 		if (!valid) {
 			process.exit(
 				writeError(`invalid --for target: ${opts.for}`, {
-					remedy: { cmd: "chatgpt-bridge capabilities", why: "list all valid targets" },
+					remedy: { cmd: "oai-bridge capabilities", why: "list all valid targets" },
 				}),
 			);
 		}
@@ -349,7 +349,7 @@ program
 					if (!promptArg) {
 						process.exit(
 							writeError("prompt required (positional arg, '-' for stdin, or JSONL on stdin)", {
-								remedy: { cmd: "chatgpt-bridge chat 'your prompt here'" },
+								remedy: { cmd: "oai-bridge chat 'your prompt here'" },
 							}),
 						);
 					}
@@ -368,7 +368,7 @@ program
 				if (job && !job.prompt.trim()) {
 					process.exit(
 						writeError("empty prompt", {
-							remedy: { cmd: "chatgpt-bridge chat 'your prompt here'" },
+							remedy: { cmd: "oai-bridge chat 'your prompt here'" },
 						}),
 					);
 				}
@@ -473,7 +473,7 @@ async function runImageOnce(
 			response_format: "b64_json",
 			...(job.ref && job.ref.length > 0 ? { reference_images: job.ref } : {}),
 		});
-		const outPath = path.resolve(job.out ?? `chatgpt-bridge-${Date.now()}.png`);
+		const outPath = path.resolve(job.out ?? `oai-bridge-${Date.now()}.png`);
 		await fs.mkdir(path.dirname(outPath), { recursive: true }).catch(() => {});
 		await fs.writeFile(outPath, Buffer.from(img.b64, "base64"));
 		return {
@@ -544,7 +544,7 @@ function registerImageCommand(name: "image" | "gen", deprecated: boolean): void 
 						if (!promptArg) {
 							process.exit(
 								writeError("prompt required (positional arg, '-' for stdin, or JSONL)", {
-									remedy: { cmd: "chatgpt-bridge image 'a fox' --out fox.png" },
+									remedy: { cmd: "oai-bridge image 'a fox' --out fox.png" },
 								}),
 							);
 						}
@@ -564,7 +564,7 @@ function registerImageCommand(name: "image" | "gen", deprecated: boolean): void 
 					if (job && !job.prompt.trim()) {
 						process.exit(
 							writeError("empty prompt", {
-								remedy: { cmd: "chatgpt-bridge image 'a fox' --out fox.png" },
+								remedy: { cmd: "oai-bridge image 'a fox' --out fox.png" },
 							}),
 						);
 					}
@@ -659,8 +659,8 @@ program.parseAsync(process.argv).catch((e) => {
 				err.message?.includes("auth.json") || err.message?.includes("access_token")
 					? { cmd: "npx @openai/codex login", interactive: true }
 					: err.message?.includes("ENEEDAUTH")
-						? { cmd: "chatgpt-bridge install --for openai-sdk" }
-						: { cmd: "chatgpt-bridge doctor", why: "for diagnosis" },
+						? { cmd: "oai-bridge install --for openai-sdk" }
+						: { cmd: "oai-bridge doctor", why: "for diagnosis" },
 		})}\n`,
 	);
 	process.exit(classifyExitCode(err));

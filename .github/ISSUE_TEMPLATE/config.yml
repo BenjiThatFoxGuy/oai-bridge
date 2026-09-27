@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: mailto:fluxmind.ia@gmail.com
+    url: mailto:claude@benjifox.gay
     about: For security vulnerabilities, do NOT use issues. Email instead. See SECURITY.md.
   - name: Discussions / questions
-    url: https://github.com/l0z4n0-a1/chatgpt-bridge/discussions
+    url: https://github.com/BenjiThatFoxGuy/chatgpt-bridge/discussions
     about: General questions, design discussions, "is this normal?" — please use Discussions, not Issues.

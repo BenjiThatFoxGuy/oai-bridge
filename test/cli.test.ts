@@ -39,7 +39,7 @@ describe("CLI smoke (compiled dist/cli.js)", () => {
 		const r = run(["capabilities"]);
 		expect(r.code).toBe(0);
 		const cat = JSON.parse(r.stdout);
-		expect(cat.package).toBe("chatgpt-bridge");
+		expect(cat.package).toBe("oai-bridge");
 		expect(Array.isArray(cat.verbs)).toBe(true);
 	});
 
@@ -49,7 +49,7 @@ describe("CLI smoke (compiled dist/cli.js)", () => {
 		const err = JSON.parse(r.stderr);
 		expect(err.ok).toBe(false);
 		expect(err.error).toContain("invalid --for target");
-		expect(err.remedy?.cmd).toBe("chatgpt-bridge capabilities");
+		expect(err.remedy?.cmd).toBe("oai-bridge capabilities");
 	});
 
 	test("chat with no prompt and stdin closed: rejects empty prompt", () => {

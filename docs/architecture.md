@@ -12,7 +12,7 @@ The whole thing fits on a napkin.
                │  (OpenAI dialect)
                ▼
 ┌────────────────────────────────────────────────┐
-│  chatgpt-bridge (this package, ~1.7k LOC)      │
+│  oai-bridge (this package, ~1.7k LOC)          │
 │  ┌──────────────────────────────────────────┐  │
 │  │ Hono router                              │  │
 │  │   /v1/images/generations  ─► images.ts   │  │

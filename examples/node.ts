@@ -1,6 +1,6 @@
 /**
  * Generate an image via your ChatGPT subscription.
- * Prereq: chatgpt-bridge serve  (running on :10531)
+ * Prereq: oai-bridge serve  (running on :10531)
  */
 
 import { writeFileSync } from "node:fs";

@@ -6,7 +6,7 @@ Three patterns, each ~10 lines:
   2. File context — ask a question grounded in a local text file
   3. Reference image — generate an image guided by a moodboard
 
-Prereq: chatgpt-bridge serve   (running on :10531)
+Prereq: oai-bridge serve   (running on :10531)
         npx @openai/codex login (one-time)
 """
 

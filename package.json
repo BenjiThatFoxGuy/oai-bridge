@@ -1,5 +1,5 @@
 {
-	"name": "chatgpt-bridge",
+	"name": "oai-bridge",
 	"version": "0.3.0",
 	"description": "Localhost OpenAI-compatible HTTP proxy that uses your ChatGPT subscription via OAuth — including image generation (gpt-image-2).",
 	"keywords": [
@@ -15,15 +15,18 @@
 	],
 	"license": "MIT",
 	"author": "João Gabriel Lozano <fluxmind.ia@gmail.com>",
+	"contributors": [
+		"BenjiThatFoxGuy"
+	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/l0z4n0-a1/chatgpt-bridge.git"
+		"url": "git+https://github.com/BenjiThatFoxGuy/chatgpt-bridge.git"
 	},
-	"homepage": "https://github.com/l0z4n0-a1/chatgpt-bridge#readme",
-	"bugs": "https://github.com/l0z4n0-a1/chatgpt-bridge/issues",
+	"homepage": "https://github.com/BenjiThatFoxGuy/chatgpt-bridge#readme",
+	"bugs": "https://github.com/BenjiThatFoxGuy/chatgpt-bridge/issues",
 	"type": "module",
 	"bin": {
-		"chatgpt-bridge": "dist/cli.js"
+		"oai-bridge": "dist/cli.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -42,7 +45,7 @@
 	"scripts": {
 		"dev": "bun run src/cli.ts serve",
 		"build": "bun run scripts/build.ts",
-		"build:exe": "bun build src/cli.ts --compile --outfile dist/chatgpt-bridge",
+		"build:exe": "bun build src/cli.ts --compile --outfile dist/oai-bridge",
 		"typecheck": "tsc --noEmit",
 		"test": "bun test",
 		"format": "bunx @biomejs/biome format --write src test",

@@ -1,6 +1,6 @@
 # Examples
 
-Pick the one that matches your tool. Every example expects `chatgpt-bridge serve` to be running on `:10531` (or you've authenticated and the example uses the library directly).
+Pick the one that matches your tool. Every example expects `oai-bridge serve` to be running on `:10531` (or you've authenticated and the example uses the library directly).
 
 | File | Tool |
 |---|---|
@@ -15,10 +15,10 @@ Pick the one that matches your tool. Every example expects `chatgpt-bridge serve
 ## Setup once
 
 ```bash
-npm i -g chatgpt-bridge          # or use npx
+npm i -g oai-bridge          # or use npx
 npx @openai/codex login          # mints auth.json
-chatgpt-bridge doctor            # confirm everything's green
-chatgpt-bridge serve             # starts the proxy
+oai-bridge doctor            # confirm everything's green
+oai-bridge serve             # starts the proxy
 ```
 
 ## Add your own

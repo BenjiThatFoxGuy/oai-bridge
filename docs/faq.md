@@ -22,7 +22,7 @@ This bridge targets `chatgpt.com/backend-api/codex/responses` — the developer 
 
 Because reimplementing OAuth + PKCE + browser dance properly is its own project, and the official CLI already does it well. The bridge reads the `auth.json` that CLI writes. We don't reinvent auth.
 
-We may add a self-contained `chatgpt-bridge login` in a future version, but the dependency on the Codex CLI for *initial* auth keeps the trust chain short.
+We may add a self-contained `oai-bridge login` in a future version, but the dependency on the Codex CLI for *initial* auth keeps the trust chain short.
 
 ### Will my account get banned?
 
@@ -40,7 +40,7 @@ This is the real risk, not bans. When `chatgpt.com/backend-api/codex/responses` 
 1. **Field renames / new fields**: usually transparent — `passthrough` route forwards them.
 2. **Major API changes**: the bridge will need a patch. File an issue with the failing request and the symptoms; fixes are typically same-day.
 
-You can also pin a specific version (`npm i chatgpt-bridge@0.1.0`) to insulate yourself from upstream changes that might require a bridge update.
+You can also pin a specific version (`npm i oai-bridge@0.1.0`) to insulate yourself from upstream changes that might require a bridge update.
 
 ### Why these specific dependencies?
 
@@ -60,11 +60,11 @@ Optimization for ergonomics, not raw speed:
 - Bun + TS lets you ship a single self-executing binary if you want.
 - The whole codebase is ~1.7k LOC; raw speed isn't where time is spent (network is).
 
-Python equivalents exist but require pip + venv + interpreter, which is friction. `npx chatgpt-bridge serve` runs everywhere Node runs, no setup.
+Python equivalents exist but require pip + venv + interpreter, which is friction. `npx oai-bridge serve` runs everywhere Node runs, no setup.
 
 ### Can I use this with image editing? Vision? Embeddings?
 
-**Vision** works first-class at `/v1/chat/completions` since v0.3.0: any OpenAI-shape `image_url` content part is translated to Responses `input_image` (URLs pass through; data-URLs forward as-is). Use `chatgpt-bridge chat "..." --attach image.png` from the CLI, the `attachments[]` arg in MCP, or any OpenAI SDK that speaks the vision shape.
+**Vision** works first-class at `/v1/chat/completions` since v0.3.0: any OpenAI-shape `image_url` content part is translated to Responses `input_image` (URLs pass through; data-URLs forward as-is). Use `oai-bridge chat "..." --attach image.png` from the CLI, the `attachments[]` arg in MCP, or any OpenAI SDK that speaks the vision shape.
 
 **File context** (.md, .txt, .json, etc.) works via the bridge-extension `{type:"input_file", file:{path|url|data,mime,filename}}` content part, also at `/v1/chat/completions`. Same `--attach` flag in CLI; same `attachments[]` arg in MCP.
 
@@ -85,16 +85,16 @@ Yes. CI runs on Linux, macOS, and Windows. Tested manually on Windows 10/11 with
 ### How do I update?
 
 ```bash
-npm i -g chatgpt-bridge@latest
+npm i -g oai-bridge@latest
 # or for projects:
-npm update chatgpt-bridge
+npm update oai-bridge
 ```
 
 Watch the [CHANGELOG](../CHANGELOG.md) — semver is followed strictly.
 
 ### Can I monitor / log requests?
 
-Currently: `chatgpt-bridge doctor` for snapshot, server logs to stderr for live events. Structured audit logging is on the roadmap.
+Currently: `oai-bridge doctor` for snapshot, server logs to stderr for live events. Structured audit logging is on the roadmap.
 
 ### What about OpenAI's official Image API?
 

@@ -15,7 +15,7 @@ src/
   auth.ts         # OAuth token load / decode / refresh
   upstream.ts     # single fetch wrapper + SSE parser
   images.ts       # /v1/images/generations translator
-  mcp.ts          # MCP server (chatgpt-bridge mcp)
+  mcp.ts          # MCP server (oai-bridge mcp)
   config.ts       # defaults + env var overrides
   index.ts        # public library API exports
 test/             # unit tests (bun test)
@@ -41,7 +41,7 @@ bun run typecheck   # tsc --noEmit (must pass)
 bun test            # unit tests (must pass)
 bun run lint        # biome check (must pass)
 bun run build       # produce dist/ for npm publish
-bun run dev         # run from source: chatgpt-bridge serve
+bun run dev         # run from source: oai-bridge serve
 ```
 
 ## Tasks an agent might be asked to do
@@ -110,8 +110,8 @@ If you changed user-facing behavior, also do a smoke test against a fresh instal
 ```bash
 npm pack
 cd /tmp && mkdir test && cd test && npm init -y >/dev/null
-npm install /path/to/chatgpt-bridge-x.y.z.tgz
-./node_modules/.bin/chatgpt-bridge doctor
+npm install /path/to/oai-bridge-x.y.z.tgz
+./node_modules/.bin/oai-bridge doctor
 ```
 
 ## Pull request etiquette

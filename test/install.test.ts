@@ -18,7 +18,7 @@ import { runInstall } from "../src/install.ts";
 
 /**
  * Run a test inside a clean tmp directory pretending to be $HOME. Sets
- * `$CHATGPT_BRIDGE_HOME` (which the install module honours) and the
+ * `$OAI_BRIDGE_HOME` (which the install module honours) and the
  * platform-specific app-data env vars so `appDataDir()` resolves under
  * the tmp dir on every OS. Cleans up on exit.
  */
@@ -36,10 +36,10 @@ function restoreEnv(key: string, prev: string | undefined): void {
 async function withTmpHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 	const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cgb-install-"));
 	const KEYS = [
-		"CHATGPT_BRIDGE_HOME",
+		"OAI_BRIDGE_HOME",
 		"APPDATA",
 		"XDG_CONFIG_HOME",
-		"CHATGPT_BRIDGE_AUTH_FILE",
+		"OAI_BRIDGE_AUTH_FILE",
 		"CODEX_HOME",
 		"CHATGPT_LOCAL_HOME",
 	] as const;
@@ -47,12 +47,12 @@ async function withTmpHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 		(typeof KEYS)[number],
 		string | undefined
 	>;
-	process.env.CHATGPT_BRIDGE_HOME = dir;
+	process.env.OAI_BRIDGE_HOME = dir;
 	process.env.APPDATA = path.join(dir, "AppData", "Roaming");
 	process.env.XDG_CONFIG_HOME = path.join(dir, ".config");
 	// Pin the auth-file lookup into the tmp dir too, so Auth.ensure() in
 	// install round-trip tests doesn't pick up the developer's real auth.json.
-	process.env.CHATGPT_BRIDGE_AUTH_FILE = path.join(dir, ".codex", "auth.json");
+	process.env.OAI_BRIDGE_AUTH_FILE = path.join(dir, ".codex", "auth.json");
 	// biome-ignore lint/performance/noDelete: clear inherited fallbacks.
 	delete process.env.CODEX_HOME;
 	// biome-ignore lint/performance/noDelete: clear inherited fallbacks.
@@ -102,7 +102,7 @@ describe("install: auth missing", () => {
 			expect(single.error).toContain("auth.json not found");
 			expect(single.remedy?.cmd).toBe("npx @openai/codex login");
 			expect(single.remedy?.interactive).toBe(true);
-			expect(single.remedy?.next).toBe("chatgpt-bridge install --for claude-code");
+			expect(single.remedy?.next).toBe("oai-bridge install --for claude-code");
 		});
 	});
 });
@@ -156,8 +156,8 @@ describe("install: uninstall is idempotent and bypasses auth", () => {
 			const cfg1 = JSON.parse(await fs.readFile(s1.config_path as string, "utf-8")) as {
 				mcpServers: Record<string, { command: string; args: string[] }>;
 			};
-			expect(cfg1.mcpServers["chatgpt-bridge"]).toBeDefined();
-			expect(cfg1.mcpServers["chatgpt-bridge"]?.command).toBe("npx");
+			expect(cfg1.mcpServers["oai-bridge"]).toBeDefined();
+			expect(cfg1.mcpServers["oai-bridge"]?.command).toBe("npx");
 
 			// 2. Re-install: idempotent, reports already_installed
 			const r2 = await runInstall("cursor");
@@ -181,7 +181,7 @@ describe("install: uninstall is idempotent and bypasses auth", () => {
 				mcpServers: Record<string, unknown>;
 				other?: string;
 			};
-			expect(after.mcpServers["chatgpt-bridge"]).toBeUndefined();
+			expect(after.mcpServers["oai-bridge"]).toBeUndefined();
 			expect(after.other).toBe("preserve-me");
 		});
 	});

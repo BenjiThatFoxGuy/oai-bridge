@@ -34,7 +34,7 @@ print(resp.choices[0].message.content)
 
 ```bash
 # CLI — same thing
-chatgpt-bridge chat "What font is this?" --attach screenshot.png
+oai-bridge chat "What font is this?" --attach screenshot.png
 ```
 
 ### File as context (bridge extension)
@@ -56,7 +56,7 @@ resp = c.chat.completions.create(
 
 ```bash
 # CLI — same thing
-chatgpt-bridge chat "Audit this spec against OpenAPI 3.1" --attach spec.md
+oai-bridge chat "Audit this spec against OpenAPI 3.1" --attach spec.md
 ```
 
 > **Bridge extension note:** the `input_file` content part is not portable to `api.openai.com`. Code that uses it speaks to the bridge specifically. Vision (`image_url`) is standard OpenAI and works against either endpoint.
@@ -76,7 +76,7 @@ img = c.images.generate(
 
 ```bash
 # CLI — same thing
-chatgpt-bridge image "hero shot, brand-consistent, premium aesthetic" \
+oai-bridge image "hero shot, brand-consistent, premium aesthetic" \
   --ref moodboard.png --ref logo.svg \
   --size 1536x1024 --out hero.png
 ```
@@ -88,12 +88,12 @@ chatgpt-bridge image "hero shot, brand-consistent, premium aesthetic" \
 ```bash
 # 5 ad creative variations from a single moodboard
 for i in 1 2 3 4 5; do
-  chatgpt-bridge image "creative variation $i, premium aesthetic" \
+  oai-bridge image "creative variation $i, premium aesthetic" \
     --ref moodboard.png --quality high --out "out/v$i.png" --json &
 done | jq -s
 
 # Or JSONL: one job per line
-chatgpt-bridge image - <<'EOF'
+oai-bridge image - <<'EOF'
 {"prompt":"hero v1","ref":["mood.png"],"out":"v1.png"}
 {"prompt":"hero v2","ref":["mood.png"],"out":"v2.png","quality":"medium"}
 {"prompt":"hero v3","ref":["mood.png","logo.svg"],"out":"v3.png"}
@@ -223,7 +223,7 @@ Copy the skill into your skills directory:
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -r examples/claude-code-skill ~/.claude/skills/chatgpt-bridge-image
+cp -r examples/claude-code-skill ~/.claude/skills/oai-bridge-image
 ```
 
 Then ask Claude:
@@ -236,7 +236,7 @@ The skill auto-starts the bridge if needed and writes the file. See [`examples/c
 
 ```ts
 import { writeFileSync } from "node:fs";
-import { Auth, Upstream, generateImage, loadConfig } from "chatgpt-bridge";
+import { Auth, Upstream, generateImage, loadConfig } from "oai-bridge";
 
 const cfg = loadConfig();
 const upstream = new Upstream(cfg, new Auth(cfg));

@@ -19,7 +19,7 @@ The bridge runs on `localhost`. Anyone with shell access to your machine can alr
 |---|---|---|
 | `~/.codex/auth.json` (or equivalent) | The official `codex` CLI; the bridge only reads + refreshes | Mode `0o600`. Contains JWTs and a refresh token. **Treat as a password file.** |
 | `<project>/dist/` | npm install | The published JS — read-only, no secrets. |
-| `node_modules/chatgpt-bridge/` | npm install | Same. |
+| `node_modules/oai-bridge/` | npm install | Same. |
 
 The bridge does not create any other state files unless you opt into them via env vars.
 
@@ -30,7 +30,7 @@ The bridge contacts only two hosts:
 1. `https://auth.openai.com/oauth/token` — OAuth refresh (RFC 6749).
 2. `https://chatgpt.com/backend-api/codex/...` — proxied requests.
 
-You can verify with `tcpdump`/`netstat`/Wireshark. You can also override either via env vars (`CHATGPT_BRIDGE_CLIENT_ID` for OAuth client, no override for hosts — that's intentional).
+You can verify with `tcpdump`/`netstat`/Wireshark. You can also override either via env vars (`OAI_BRIDGE_CLIENT_ID`, or the legacy `CHATGPT_BRIDGE_CLIENT_ID`, for OAuth client, no override for hosts — that's intentional).
 
 ## Supply chain
 
@@ -42,16 +42,16 @@ This package follows a few practices:
 - **Reproducible-ish builds.** `bun run build` produces deterministic output for a given source.
 - **Provenance.** Releases tagged `v*` are published from the GitHub Actions workflow, with npm provenance attestation. Verify with:
   ```bash
-  npm view chatgpt-bridge --json | jq '.dist.attestations'
+  npm view oai-bridge --json | jq '.dist.attestations'
   ```
 
 ## Reporting a vulnerability
 
 Please do **not** open a public issue for security reports.
 
-Email: **fluxmind.ia@gmail.com** with subject `chatgpt-bridge security`. Expect a reply within 72 hours. Coordinated disclosure preferred.
+Email: **claude@benjifox.gay** with subject `oai-bridge security`. Expect a reply within 72 hours. Coordinated disclosure preferred.
 
-For non-security bugs, open an issue: https://github.com/l0z4n0-a1/chatgpt-bridge/issues
+For non-security bugs, open an issue: https://github.com/BenjiThatFoxGuy/chatgpt-bridge/issues
 
 ## OpenAI Terms
 
@@ -63,10 +63,10 @@ If you're not comfortable with that, use OpenAI's paid Images API directly — t
 
 ```bash
 # Tarball integrity
-npm view chatgpt-bridge dist.shasum dist.integrity
+npm view oai-bridge dist.shasum dist.integrity
 
 # Inspect what got installed
-ls -la node_modules/chatgpt-bridge/dist/
+ls -la node_modules/oai-bridge/dist/
 ```
 
-Open `node_modules/chatgpt-bridge/dist/index.js` and read it. It's ~23 KB of plain JS, no obfuscation. If it's bigger or weirder than the published version on https://www.npmjs.com/package/chatgpt-bridge, something's wrong — file an issue.
+Open `node_modules/oai-bridge/dist/index.js` and read it. It's ~23 KB of plain JS, no obfuscation. If it's bigger or weirder than the published version on https://www.npmjs.com/package/oai-bridge, something's wrong — file an issue.

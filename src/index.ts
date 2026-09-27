@@ -1,7 +1,7 @@
 /**
  * Public library API. Use the bridge programmatically in any Node/Bun app.
  *
- *   import { createApp, generateImage, Auth, Upstream, loadConfig } from "chatgpt-bridge";
+ *   import { createApp, generateImage, Auth, Upstream, loadConfig } from "oai-bridge";
  *
  *   const cfg = loadConfig();
  *   const auth = new Auth(cfg);

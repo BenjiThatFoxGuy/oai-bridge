@@ -1,11 +1,11 @@
 /**
- * Use chatgpt-bridge as a library — no HTTP server, direct calls.
+ * Use oai-bridge as a library — no HTTP server, direct calls.
  *
- *   bun add chatgpt-bridge
+ *   bun add oai-bridge
  */
 
 import { writeFileSync } from "node:fs";
-import { Auth, Upstream, generateImage, loadConfig } from "chatgpt-bridge";
+import { Auth, Upstream, generateImage, loadConfig } from "oai-bridge";
 
 const cfg = loadConfig();
 const upstream = new Upstream(cfg, new Auth(cfg));
