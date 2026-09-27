@@ -8,9 +8,14 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 - `export_image(path)` — reads back a PNG `generate_image` previously wrote and returns its bytes as base64. For MCP clients that run in a different container/filesystem than the bridge and so can't read the returned path directly. Refuses any path that isn't exactly one this bridge process itself wrote (directory containment + an in-memory index check — no arbitrary filesystem reads).
 - `list_generations(limit?)` — lists generations still on disk from the bridge's current run, most recent first. Backed by the same in-memory index as `export_image`; resets on every bridge restart.
-- `generate_image` now always writes into a fixed per-process generations directory (`~/.chatgpt-bridge/generations` by default) instead of the bridge process's working directory — `out`, if given, is now treated as a filename only (any directory component is stripped). This is what makes `export_image`'s directory-containment check possible.
+- `generate_image` now always writes into a fixed per-process generations directory (`~/.oai-bridge/generations` by default) instead of the bridge process's working directory — `out`, if given, is now treated as a filename only (any directory component is stripped). This is what makes `export_image`'s directory-containment check possible.
 - `health()` now reports a `storage` block (generations directory path, whether it's currently writable, and how many generations are in memory) so a calling agent can confirm the environment is reachable before calling `generate_image`, instead of only finding out after the fact.
 - Tool descriptions on `generate_image`, `export_image`, and the server docstring now say in-band that this storage is not durable across bridge restarts, so a freshly generated image should be exported/handed to the user in the same turn rather than deferred.
+
+### Changed
+
+- **Renamed the published package and CLI from `chatgpt-bridge` to `oai-bridge`** (this fork publishes independently of the upstream project it started from, which already owns the `chatgpt-bridge` name on npm). The CLI binary, MCP server name, data directory (`~/.oai-bridge`), and `OAI_BRIDGE_*` env vars all follow. Legacy `CHATGPT_BRIDGE_*` env vars and the old `~/.chatgpt-bridge/auth.json` path keep working indefinitely as deprecated fallbacks — nothing breaks for existing installs.
+- Default image model (`DEFAULTS.imageModel`) bumped from `gpt-5.4-mini` to `gpt-5.5`.
 
 ## [0.3.0] — 2026-05-03
 

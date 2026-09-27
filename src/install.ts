@@ -3,7 +3,7 @@
  * IDE / agent runtime. Each adaptor knows the config path + format for its
  * target. The user runs:
  *
- *   chatgpt-bridge install --for claude-code
+ *   oai-bridge install --for claude-code
  *
  * …and the agent never has to hand-edit JSON / TOML / settings ever again.
  *
@@ -19,8 +19,8 @@ import path from "node:path";
 import { Auth, tokenExpiryMs } from "./auth.ts";
 import { type Config, homeDir, loadConfig } from "./config.ts";
 
-const MCP_ENTRY_NAME = "chatgpt-bridge";
-const MCP_COMMAND = { command: "npx", args: ["-y", "chatgpt-bridge", "mcp"] } as const;
+const MCP_ENTRY_NAME = "oai-bridge";
+const MCP_COMMAND = { command: "npx", args: ["-y", "oai-bridge", "mcp"] } as const;
 
 export type Target =
 	| "claude-code"
@@ -206,7 +206,7 @@ function pathCodex(): string {
 
 async function applyCodexToml(options: InstallOptions): Promise<InstallResult> {
 	const p = pathCodex();
-	const block = `\n[mcp_servers.${MCP_ENTRY_NAME}]\ncommand = "npx"\nargs = ["-y", "chatgpt-bridge", "mcp"]\n`;
+	const block = `\n[mcp_servers.${MCP_ENTRY_NAME}]\ncommand = "npx"\nargs = ["-y", "oai-bridge", "mcp"]\n`;
 	const marker = `[mcp_servers.${MCP_ENTRY_NAME}]`;
 
 	let current = "";
@@ -262,7 +262,7 @@ function snippetOpenaiSdk(): InstallResult {
 		ok: true,
 		for: "openai-sdk",
 		next_step:
-			"This target writes nothing. Set base_url='http://127.0.0.1:10531/v1' and api_key='unused' in your OpenAI client. Start the bridge with `chatgpt-bridge serve`.",
+			"This target writes nothing. Set base_url='http://127.0.0.1:10531/v1' and api_key='unused' in your OpenAI client. Start the bridge with `oai-bridge serve`.",
 	};
 }
 
@@ -271,7 +271,7 @@ function snippetAider(): InstallResult {
 		ok: true,
 		for: "aider",
 		next_step:
-			"Aider has no MCP. Run with `aider --openai-api-base http://127.0.0.1:10531/v1 --openai-api-key unused` after `chatgpt-bridge serve`.",
+			"Aider has no MCP. Run with `aider --openai-api-base http://127.0.0.1:10531/v1 --openai-api-key unused` after `oai-bridge serve`.",
 	};
 }
 
@@ -331,7 +331,7 @@ function authMissingResult(target: Target): InstallResult {
 			cmd: "npx @openai/codex login",
 			interactive: true,
 			why: "OAuth flow opens browser; user signs in to ChatGPT once",
-			next: `chatgpt-bridge install --for ${target}`,
+			next: `oai-bridge install --for ${target}`,
 		},
 	};
 }

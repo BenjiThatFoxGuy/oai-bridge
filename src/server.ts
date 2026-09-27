@@ -189,7 +189,7 @@ export function createApp(cfg: Config) {
 					id,
 					object: "model",
 					created: 0,
-					owned_by: "chatgpt-bridge",
+					owned_by: "oai-bridge",
 				})),
 			});
 		} catch (e) {
@@ -458,7 +458,7 @@ export const VERSION = "0.3.0";
 export async function startServer(cfg: Config): Promise<{ close: () => Promise<void> }> {
 	const { app } = createApp(cfg);
 	const server = serve({ fetch: app.fetch, hostname: cfg.host, port: cfg.port });
-	console.error(`chatgpt-bridge listening on http://${cfg.host}:${cfg.port}/v1`);
+	console.error(`oai-bridge listening on http://${cfg.host}:${cfg.port}/v1`);
 
 	const shutdown = () => {
 		console.error("shutting down");

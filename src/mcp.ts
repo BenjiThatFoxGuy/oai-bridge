@@ -5,14 +5,14 @@
  *
  *   {
  *     "mcpServers": {
- *       "chatgpt-bridge": {
+ *       "oai-bridge": {
  *         "command": "npx",
- *         "args": ["-y", "chatgpt-bridge", "mcp"]
+ *         "args": ["-y", "oai-bridge", "mcp"]
  *       }
  *     }
  *   }
  *
- * `chatgpt-bridge install --for <ide>` writes that block automatically.
+ * `oai-bridge install --for <ide>` writes that block automatically.
  *
  * Tools exposed (mirror the CLI surface):
  *   - generate_image(prompt, out?, size?, quality?, references?)
@@ -110,7 +110,7 @@ const TOOL_DEFINITIONS = [
 				out: {
 					type: "string",
 					description:
-						"Optional filename (basename only -- any directory component is stripped). The file always lands inside this bridge process's generations directory, not the caller's working directory, so export_image can read it back safely. Defaults to chatgpt-bridge-<timestamp>.png.",
+						"Optional filename (basename only -- any directory component is stripped). The file always lands inside this bridge process's generations directory, not the caller's working directory, so export_image can read it back safely. Defaults to oai-bridge-<timestamp>.png.",
 				},
 				size: {
 					type: "string",
@@ -244,7 +244,7 @@ async function handleGenerateImage(
 	// Every generation lands inside index.dir, never wherever the caller's
 	// `out` might otherwise point -- that's what lets export_image validate
 	// a path by directory containment instead of trusting caller input.
-	const filename = args.out ? path.basename(args.out) : `chatgpt-bridge-${Date.now()}.png`;
+	const filename = args.out ? path.basename(args.out) : `oai-bridge-${Date.now()}.png`;
 	const outPath = path.join(index.dir, filename);
 	await fs.mkdir(index.dir, { recursive: true });
 	await fs.writeFile(outPath, Buffer.from(img.b64, "base64"));
@@ -433,7 +433,7 @@ export async function startMcpServer(cfg: Config): Promise<void> {
 	const index = new GenerationIndex(cfg.dataHome);
 
 	const server = new Server(
-		{ name: "chatgpt-bridge", version: VERSION },
+		{ name: "oai-bridge", version: VERSION },
 		{ capabilities: { tools: {} } },
 	);
 
@@ -475,7 +475,7 @@ export async function startMcpServer(cfg: Config): Promise<void> {
 				content: [
 					{
 						type: "text",
-						text: `${(e as Error).message}\n\nRun \`chatgpt-bridge doctor\` to diagnose.`,
+						text: `${(e as Error).message}\n\nRun \`oai-bridge doctor\` to diagnose.`,
 					},
 				],
 			};

@@ -4,11 +4,11 @@
 
 **Do not open a public GitHub issue for security reports.**
 
-Email **fluxmind.ia@gmail.com** with subject `chatgpt-bridge security`. Include:
+Email **claude@benjifox.gay** with subject `oai-bridge security`. Include:
 
 - A clear description of the vulnerability.
 - Steps to reproduce.
-- Affected versions (output of `chatgpt-bridge version` if applicable).
+- Affected versions (output of `oai-bridge version` if applicable).
 - Your assessment of impact.
 - Whether you've disclosed elsewhere or to whom.
 
@@ -61,9 +61,9 @@ It does **not** contain:
 Verify with:
 
 ```bash
-npm view chatgpt-bridge dist.tarball
+npm view oai-bridge dist.tarball
 curl -sLO <tarball-url>
-tar tzf chatgpt-bridge-*.tgz
+tar tzf oai-bridge-*.tgz
 ```
 
 ## Acknowledgements

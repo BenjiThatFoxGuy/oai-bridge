@@ -6,17 +6,34 @@ This is for maintainers. Skip unless you're cutting a new version.
 
 The `release.yml` workflow needs an npm token to publish. Without it, every tag push fails at the `npm publish` step with `ENEEDAUTH`.
 
-1. Mint a granular token at <https://www.npmjs.com/settings/USERNAME/tokens>:
-   - **Type:** Publish
-   - **Permissions:** Read and write
-   - **Packages:** select `chatgpt-bridge` (or all)
-   - **Expiration:** 1 year is reasonable
-2. Add it as `NPM_TOKEN` at <https://github.com/l0z4n0-a1/chatgpt-bridge/settings/secrets/actions> (or via `gh secret set NPM_TOKEN`).
+**Bootstrap order matters for a brand-new package name.** A granular access
+token can only be scoped to packages that already exist under your account —
+you can't pre-scope one to a name nobody has published yet. So the very
+first release has to happen once, by hand, before CI can take over:
 
-The workflow uses `id-token: write` to attach **provenance attestation** automatically. Verify with:
+1. Create/verify your npmjs.com account and enable 2FA (npm requires it to
+   publish).
+2. From this repo, locally: `npm login` (this is where your 2FA code goes),
+   then `bun run build && npm publish --access public`. This claims
+   `oai-bridge` and makes your account its owner.
+3. *Now* mint a granular token at <https://www.npmjs.com/settings/USERNAME/tokens>:
+   - **Permissions:** Read and write
+   - **Packages:** select `oai-bridge` specifically (not "all packages" —
+     narrower scope means less to lose if the token ever leaks)
+   - **Expiration:** 1 year is reasonable; put a reminder somewhere to
+     rotate it before it lapses. An expired token just fails CI loudly with
+     `ENEEDAUTH` — it doesn't fail open.
+4. Add it as `NPM_TOKEN` at <https://github.com/BenjiThatFoxGuy/oai-bridge/settings/secrets/actions>
+   (or via `gh secret set NPM_TOKEN`).
+
+Every release after that goes through the tag-push → CI path below; you
+shouldn't need to run `npm publish` by hand again.
+
+The workflow uses `id-token: write` to attach **provenance attestation**
+automatically (this needs a public repo, which this one is). Verify with:
 
 ```bash
-npm view chatgpt-bridge --json | jq '.dist.attestations'
+npm view oai-bridge --json | jq '.dist.attestations'
 ```
 
 ## Pre-flight
@@ -75,10 +92,10 @@ npm publish --access public
 # Provenance attestation is only available from CI, not local publish.
 ```
 
-Requires a token with **publish permission for `chatgpt-bridge`**.
+Requires a token with **publish permission for `oai-bridge`**.
 
 ## Rolling back
 
-You have **24 hours** after publish to `npm unpublish chatgpt-bridge@x.y.z`. After that, the version is permanent — but you can `npm deprecate chatgpt-bridge@x.y.z "use a.b.c instead"` to nudge users.
+You have **72 hours** after publish to `npm unpublish oai-bridge@x.y.z` (npm's current policy — it used to be 24 hours, don't trust older advice). After that, the version is permanent — but you can `npm deprecate oai-bridge@x.y.z "use a.b.c instead"` to nudge users.
 
 Never re-publish the same version with different content. Bump the patch instead.

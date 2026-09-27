@@ -9,7 +9,7 @@ describe("GenerationIndex", () => {
 	let index: GenerationIndex;
 
 	beforeEach(async () => {
-		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "chatgpt-bridge-mcp-test-"));
+		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "oai-bridge-mcp-test-"));
 		index = new GenerationIndex(dataHome);
 		await fs.mkdir(index.dir, { recursive: true });
 	});
@@ -74,7 +74,7 @@ describe("handleExportImage", () => {
 	let index: GenerationIndex;
 
 	beforeEach(async () => {
-		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "chatgpt-bridge-mcp-test-"));
+		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "oai-bridge-mcp-test-"));
 		index = new GenerationIndex(dataHome);
 		await fs.mkdir(index.dir, { recursive: true });
 	});
@@ -135,7 +135,7 @@ describe("handleListGenerations", () => {
 	let index: GenerationIndex;
 
 	beforeEach(async () => {
-		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "chatgpt-bridge-mcp-test-"));
+		dataHome = await fs.mkdtemp(path.join(os.tmpdir(), "oai-bridge-mcp-test-"));
 		index = new GenerationIndex(dataHome);
 		await fs.mkdir(index.dir, { recursive: true });
 	});

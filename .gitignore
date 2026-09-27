@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .bridge/
+.oai-bridge/
 .chatgpt-bridge/
 *.log
 *.sqlite*
@@ -12,6 +13,7 @@ auth.json
 bun.lock
 test-output*.png
 sdk-test*.png
+oai-bridge-*.png
 chatgpt-bridge-*.png
 .qa/
 *.tgz

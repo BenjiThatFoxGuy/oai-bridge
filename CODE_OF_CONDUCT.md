@@ -32,7 +32,7 @@ The maintainer may, depending on severity:
 
 ## Scope
 
-This applies in any project space — issues, PRs, discussions, commits, anywhere bearing the `chatgpt-bridge` name.
+This applies in any project space — issues, PRs, discussions, commits, anywhere bearing the `oai-bridge` name.
 
 ## Attribution
 

@@ -1,4 +1,4 @@
-# chatgpt-bridge
+# oai-bridge
 
 > Localhost OpenAI-compatible HTTP proxy that uses your ChatGPT subscription via OAuth — including image generation. Drop-in replacement for `api.openai.com` for personal scripts and integrations.
 
@@ -6,7 +6,7 @@
 
 ```bash
 npx @openai/codex login        # one-time auth → ~/.codex/auth.json
-npx chatgpt-bridge serve       # localhost:10531/v1
+npx oai-bridge serve       # localhost:10531/v1
 ```
 
 ```python
@@ -21,9 +21,9 @@ img = c.images.generate(model="gpt-image-2", prompt="a fox")
 - Speaks the OpenAI API dialect — your existing OpenAI SDK code Just Works.
 - Auth file lives at `~/.codex/auth.json`. **Never read or echo its contents.**
 - The bridge has zero outbound traffic except to `chatgpt.com` and `auth.openai.com`.
-- `chatgpt-bridge doctor` returns JSON with health status, including a `remedy[]` array when checks fail. Use it to verify before retrying.
-- `chatgpt-bridge capabilities` returns the full machine-readable catalog (verbs, args, returns, idempotency, side effects, errors). **Read this once at session start.**
-- `chatgpt-bridge install --for <target>` registers the bridge with an IDE (claude-code, claude-desktop, codex, cursor, zed, cline, continue, aider, gemini-cli, openai-sdk, all). Idempotent.
+- `oai-bridge doctor` returns JSON with health status, including a `remedy[]` array when checks fail. Use it to verify before retrying.
+- `oai-bridge capabilities` returns the full machine-readable catalog (verbs, args, returns, idempotency, side effects, errors). **Read this once at session start.**
+- `oai-bridge install --for <target>` registers the bridge with an IDE (claude-code, claude-desktop, codex, cursor, zed, cline, continue, aider, gemini-cli, openai-sdk, all). Idempotent.
 - All CLI commands write JSON to stdout. Errors go to stderr with structured `remedy` fields.
 
 ## Tools surface (for agent runtimes)
@@ -33,9 +33,9 @@ img = c.images.generate(model="gpt-image-2", prompt="a fox")
 ```json
 {
   "mcpServers": {
-    "chatgpt-bridge": {
+    "oai-bridge": {
       "command": "npx",
-      "args": ["-y", "chatgpt-bridge", "mcp"]
+      "args": ["-y", "oai-bridge", "mcp"]
     }
   }
 }
@@ -64,16 +64,16 @@ Storage caveat: generated images and the `list_generations` index live only for 
 ### CLI (one-shot, no server needed)
 
 ```bash
-chatgpt-bridge install --for claude-code     # one-shot, idempotent, agent-native setup
-chatgpt-bridge capabilities                   # full catalog as JSON (read this once)
-chatgpt-bridge gen "a tiny dragon" --out dragon.png
-chatgpt-bridge doctor                         # exit 0 if healthy; emits remedy[] otherwise
-chatgpt-bridge version                        # JSON
+oai-bridge install --for claude-code     # one-shot, idempotent, agent-native setup
+oai-bridge capabilities                   # full catalog as JSON (read this once)
+oai-bridge gen "a tiny dragon" --out dragon.png
+oai-bridge doctor                         # exit 0 if healthy; emits remedy[] otherwise
+oai-bridge version                        # JSON
 ```
 
 ### Agent-native install targets
 
-Run `chatgpt-bridge install --for <target>` to register without hand-editing config:
+Run `oai-bridge install --for <target>` to register without hand-editing config:
 
 | target | writes to |
 |---|---|
@@ -93,17 +93,17 @@ Add `--dry-run` to preview, `--uninstall` to remove. All operations are idempote
 
 ## Documentation
 
-- [README](https://github.com/l0z4n0-a1/chatgpt-bridge#readme): full usage
-- [docs/architecture.md](https://github.com/l0z4n0-a1/chatgpt-bridge/blob/main/docs/architecture.md): how the bridge works internally
-- [docs/integrations.md](https://github.com/l0z4n0-a1/chatgpt-bridge/blob/main/docs/integrations.md): drop-in snippets for Python, Node, Vercel AI SDK, LangChain, n8n, ComfyUI, Claude Code
-- [docs/troubleshooting.md](https://github.com/l0z4n0-a1/chatgpt-bridge/blob/main/docs/troubleshooting.md): common errors and fixes
-- [docs/security.md](https://github.com/l0z4n0-a1/chatgpt-bridge/blob/main/docs/security.md): threat model, supply chain
-- [docs/faq.md](https://github.com/l0z4n0-a1/chatgpt-bridge/blob/main/docs/faq.md): frequent questions
+- [README](https://github.com/BenjiThatFoxGuy/oai-bridge#readme): full usage
+- [docs/architecture.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/architecture.md): how the bridge works internally
+- [docs/integrations.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/integrations.md): drop-in snippets for Python, Node, Vercel AI SDK, LangChain, n8n, ComfyUI, Claude Code
+- [docs/troubleshooting.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/troubleshooting.md): common errors and fixes
+- [docs/security.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/security.md): threat model, supply chain
+- [docs/faq.md](https://github.com/BenjiThatFoxGuy/oai-bridge/blob/main/docs/faq.md): frequent questions
 
 ## Source
 
-- Repo: https://github.com/l0z4n0-a1/chatgpt-bridge
-- npm: https://www.npmjs.com/package/chatgpt-bridge
+- Repo: https://github.com/BenjiThatFoxGuy/oai-bridge
+- npm: https://www.npmjs.com/package/oai-bridge
 - License: MIT
 - ~1.7k LOC across 11 source files. Read top-to-bottom in under an hour.
 

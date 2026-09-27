@@ -1,6 +1,6 @@
 # Troubleshooting
 
-If something breaks, run `chatgpt-bridge doctor` first. It's the fastest signal.
+If something breaks, run `oai-bridge doctor` first. It's the fastest signal.
 
 ---
 
@@ -18,7 +18,7 @@ You haven't authenticated. One-time fix:
 npx @openai/codex login
 ```
 
-A browser opens. Sign in with the account that has your ChatGPT subscription. The CLI writes `~/.codex/auth.json`. Re-run `chatgpt-bridge doctor` to confirm.
+A browser opens. Sign in with the account that has your ChatGPT subscription. The CLI writes `~/.codex/auth.json`. Re-run `oai-bridge doctor` to confirm.
 
 ### `Token refresh failed (HTTP 401)`
 
@@ -31,7 +31,7 @@ Fix:
 
 ```bash
 npx @openai/codex login   # mints fresh tokens
-chatgpt-bridge doctor     # confirm green
+oai-bridge doctor     # confirm green
 ```
 
 ### `HTTP 403` from upstream on every request
@@ -41,7 +41,7 @@ Almost always means: the OAuth token is valid, but your account doesn't have the
 Diagnostic:
 
 ```bash
-chatgpt-bridge doctor
+oai-bridge doctor
 # auth: ok
 # upstream: HTTP 403   ← here
 ```
@@ -69,7 +69,7 @@ Default cap is **200 requests/hour**, regardless of upstream. This is a self-imp
 Override at startup:
 
 ```bash
-CHATGPT_BRIDGE_RATE_HOURLY_HARD=500 chatgpt-bridge serve
+OAI_BRIDGE_RATE_HOURLY_HARD=500 oai-bridge serve
 ```
 
 Or remove the cap entirely by setting it to a very large number. **Don't.** ChatGPT's actual web rate limit is around 80–160 messages per 3 hours for Plus accounts; pushing past it triggers account-level enforcement.
@@ -86,44 +86,44 @@ lsof -ti :10531 | xargs kill -9
 Get-NetTCPConnection -LocalPort 10531 | Stop-Process -Force
 ```
 
-Or just pick another port: `chatgpt-bridge serve --port 10532`.
+Or just pick another port: `oai-bridge serve --port 10532`.
 
-### `npx chatgpt-bridge serve` says "command not found"
+### `npx oai-bridge serve` says "command not found"
 
 You're on a platform where `npx` doesn't auto-install. Two fixes:
 
 ```bash
-npm i -g chatgpt-bridge
-chatgpt-bridge serve
+npm i -g oai-bridge
+oai-bridge serve
 ```
 
-Or download the standalone binary from [Releases](https://github.com/l0z4n0-a1/chatgpt-bridge/releases).
+Or download the standalone binary from [Releases](https://github.com/BenjiThatFoxGuy/oai-bridge/releases).
 
-### `Cannot find module 'chatgpt-bridge'` in your code
+### `Cannot find module 'oai-bridge'` in your code
 
 If you imported it as a library:
 
 ```ts
-import { generateImage } from "chatgpt-bridge";
+import { generateImage } from "oai-bridge";
 ```
 
 Make sure it's installed locally, not just globally:
 
 ```bash
-npm i chatgpt-bridge   # in your project's directory
+npm i oai-bridge   # in your project's directory
 ```
 
 ---
 
 ## When to file an issue
 
-Open one at https://github.com/l0z4n0-a1/chatgpt-bridge/issues with:
+Open one at https://github.com/BenjiThatFoxGuy/oai-bridge/issues with:
 
-1. Full output of `chatgpt-bridge doctor`.
+1. Full output of `oai-bridge doctor`.
 2. The exact request body (redact prompts if private).
 3. The full error message.
 4. Your runtime: `node --version` or `bun --version`, OS.
-5. Your bridge version: `chatgpt-bridge version`.
+5. Your bridge version: `oai-bridge version`.
 
 **Never paste the contents of `auth.json`.** Tokens in there are sensitive.
 

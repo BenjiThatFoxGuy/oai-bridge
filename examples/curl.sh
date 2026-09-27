@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Generate an image and save it to fox.png.
-# Prereq: chatgpt-bridge serve  (running on :10531)
+# Prereq: oai-bridge serve  (running on :10531)
 # Requires: curl, jq, base64
 
 set -euo pipefail

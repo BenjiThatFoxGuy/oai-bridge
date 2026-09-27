@@ -1,7 +1,7 @@
 /**
  * Machine-readable capability catalog.
  *
- * Agents call `chatgpt-bridge capabilities` once and learn the entire surface:
+ * Agents call `oai-bridge capabilities` once and learn the entire surface:
  * verbs, args, returns, idempotency, side effects, latency, errors, examples.
  *
  * The catalog is a single const so it cannot drift from the implementation —
@@ -36,7 +36,7 @@ export interface CapabilityVerb {
 
 export interface Capabilities {
 	version: string;
-	package: "chatgpt-bridge";
+	package: "oai-bridge";
 	wire: {
 		stdout: "json-on-pipe-or-flag";
 		stderr: "json-on-arg-validation-or-fatal-error";
@@ -65,7 +65,7 @@ const GLOBAL_FLAGS: Record<string, CapabilityArg> = {
 
 export const CAPABILITIES: Capabilities = {
 	version: VERSION,
-	package: "chatgpt-bridge",
+	package: "oai-bridge",
 	wire: {
 		stdout: "json-on-pipe-or-flag",
 		stderr: "json-on-arg-validation-or-fatal-error",
@@ -123,16 +123,16 @@ export const CAPABILITIES: Capabilities = {
 			idempotent: true,
 			rate_limited: false,
 			examples: [
-				{ cmd: "chatgpt-bridge install --for claude-code", purpose: "register with Claude Code" },
+				{ cmd: "oai-bridge install --for claude-code", purpose: "register with Claude Code" },
 				{
-					cmd: "chatgpt-bridge install --for all",
+					cmd: "oai-bridge install --for all",
 					purpose: "register with every detected runtime",
 				},
 				{
-					cmd: "chatgpt-bridge install --for cursor --dry-run",
+					cmd: "oai-bridge install --for cursor --dry-run",
 					purpose: "preview without writing",
 				},
-				{ cmd: "chatgpt-bridge install --for cursor --uninstall", purpose: "remove entry" },
+				{ cmd: "oai-bridge install --for cursor --uninstall", purpose: "remove entry" },
 			],
 			errors: [
 				{
@@ -161,7 +161,7 @@ export const CAPABILITIES: Capabilities = {
 			idempotent: true,
 			rate_limited: false,
 			cache_seconds: 0,
-			examples: [{ cmd: "chatgpt-bridge capabilities" }],
+			examples: [{ cmd: "oai-bridge capabilities" }],
 		},
 		{
 			name: "chat",
@@ -195,10 +195,10 @@ export const CAPABILITIES: Capabilities = {
 			rate_limited: true,
 			typical_latency_seconds: [1, 30],
 			examples: [
-				{ cmd: "chatgpt-bridge chat 'explain REST'", purpose: "minimal text" },
-				{ cmd: "chatgpt-bridge chat 'audit this' --attach spec.md", purpose: "with file context" },
-				{ cmd: "chatgpt-bridge chat 'what font?' --attach screenshot.png", purpose: "vision" },
-				{ cmd: "echo 'hello' | chatgpt-bridge chat -", purpose: "stdin prompt" },
+				{ cmd: "oai-bridge chat 'explain REST'", purpose: "minimal text" },
+				{ cmd: "oai-bridge chat 'audit this' --attach spec.md", purpose: "with file context" },
+				{ cmd: "oai-bridge chat 'what font?' --attach screenshot.png", purpose: "vision" },
+				{ cmd: "echo 'hello' | oai-bridge chat -", purpose: "stdin prompt" },
 			],
 			errors: [
 				{
@@ -227,7 +227,7 @@ export const CAPABILITIES: Capabilities = {
 					required: true,
 					doc: "What to draw. '@path' reads file. '-' reads stdin (prompt or JSONL batch).",
 				},
-				out: { type: "path", default: "./chatgpt-bridge-<ts>.png" },
+				out: { type: "path", default: "./oai-bridge-<ts>.png" },
 				ref: {
 					type: "string[]",
 					repeatable: true,
@@ -257,11 +257,11 @@ export const CAPABILITIES: Capabilities = {
 			rate_limited: true,
 			typical_latency_seconds: [8, 90],
 			examples: [
-				{ cmd: "chatgpt-bridge image 'a fox' --out fox.png" },
+				{ cmd: "oai-bridge image 'a fox' --out fox.png" },
 				{
-					cmd: "chatgpt-bridge image 'hero shot, this style' --ref mood.png --ref logo.svg --out hero.png",
+					cmd: "oai-bridge image 'hero shot, this style' --ref mood.png --ref logo.svg --out hero.png",
 				},
-				{ cmd: "chatgpt-bridge image 'fox' --dry-run", purpose: "validate without spending quota" },
+				{ cmd: "oai-bridge image 'fox' --dry-run", purpose: "validate without spending quota" },
 			],
 			errors: [
 				{
@@ -295,7 +295,7 @@ export const CAPABILITIES: Capabilities = {
 			idempotent: true,
 			rate_limited: false,
 			cache_seconds: 300,
-			examples: [{ cmd: "chatgpt-bridge models" }],
+			examples: [{ cmd: "oai-bridge models" }],
 		},
 		{
 			name: "doctor",
@@ -309,7 +309,7 @@ export const CAPABILITIES: Capabilities = {
 			side_effects: "Read-only. One upstream GET to /models for liveness.",
 			idempotent: true,
 			rate_limited: false,
-			examples: [{ cmd: "chatgpt-bridge doctor" }],
+			examples: [{ cmd: "oai-bridge doctor" }],
 		},
 		{
 			name: "serve",
@@ -323,7 +323,7 @@ export const CAPABILITIES: Capabilities = {
 			idempotent: false,
 			// `serve` itself is the launcher; the per-route rate limit lives inside.
 			rate_limited: false,
-			examples: [{ cmd: "chatgpt-bridge serve" }, { cmd: "chatgpt-bridge serve --port 11000" }],
+			examples: [{ cmd: "oai-bridge serve" }, { cmd: "oai-bridge serve --port 11000" }],
 		},
 		{
 			name: "mcp",
@@ -335,7 +335,7 @@ export const CAPABILITIES: Capabilities = {
 			idempotent: false,
 			// `mcp` itself launches the server; the `image` and `chat` tools inside are rate-limited.
 			rate_limited: false,
-			examples: [{ cmd: "chatgpt-bridge mcp" }],
+			examples: [{ cmd: "oai-bridge mcp" }],
 		},
 	],
 };
