@@ -41,10 +41,14 @@ img = c.images.generate(model="gpt-image-2", prompt="a fox")
 }
 ```
 
-Exposes 3 tools (mirrors of the CLI surface):
+Exposes 5 tools (mirrors of the CLI surface, plus two MCP-only tools for reading back generated images):
 - `chat(prompt, system?, model?, attachments?)` — text or multimodal message; optional file/image attachments.
-- `generate_image(prompt, out?, size?, quality?, references?)` — generate PNG; optional reference images shape style.
-- `health()` — bridge state snapshot.
+- `generate_image(prompt, out?, size?, quality?, references?)` — generate PNG into the bridge's generations directory; optional reference images shape style.
+- `export_image(path)` — read back a PNG `generate_image` wrote, return its bytes as base64. Use when the calling MCP client can't read the bridge's filesystem directly. `path` must be one this bridge process itself returned.
+- `list_generations(limit?)` — generations still on disk from the bridge's current run, most recent first. In-memory only, resets on bridge restart.
+- `health()` — bridge state snapshot, including whether the generations directory is writable.
+
+Storage caveat: generated images and the `list_generations` index live only for the current bridge process. A restart discards both permanently. Export a freshly generated image (or hand it to the user) in the same turn it was generated — don't defer or batch it.
 
 ### HTTP API (any OpenAI SDK)
 

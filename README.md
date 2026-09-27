@@ -302,11 +302,15 @@ Returns the entire surface as a single JSON document: every verb, args, returns,
 
 ### Use with Claude Desktop / Cursor / Zed (MCP)
 
-After `chatgpt-bridge install --for <target>`, restart the IDE. Three MCP tools become available:
+After `chatgpt-bridge install --for <target>`, restart the IDE. Five MCP tools become available:
 
 - `chat(prompt, system?, model?, attachments?)` — assistant reply as plain text. `attachments` accepts paths or URLs; images become vision input, text files become contextual file_data.
-- `generate_image(prompt, out?, size?, quality?, references?)` — saves a PNG, returns the absolute path. `references` (up to 8) shape the output's style/composition.
-- `health()` — bridge state snapshot.
+- `generate_image(prompt, out?, size?, quality?, references?)` — saves a PNG into the bridge's generations directory, returns the absolute path. `references` (up to 8) shape the output's style/composition.
+- `export_image(path)` — reads back a PNG `generate_image` wrote and returns its bytes as base64. For MCP clients that run in a different container/filesystem than the bridge and so can't read the returned path directly.
+- `list_generations(limit?)` — generations still on disk from the bridge's current run, most recent first.
+- `health()` — bridge state snapshot, including whether the generations directory is currently writable.
+
+The bridge's image storage (and the index behind `list_generations`/`export_image`) is **not durable**: it lives only for the current bridge process and is lost on restart. Export or hand off a freshly generated image in the same turn — don't defer it.
 
 If you'd rather configure manually, the MCP entry is:
 
